@@ -9,7 +9,6 @@ import com.example.myapplication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
-    var mode = "volley"
     var authMenuItem : MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

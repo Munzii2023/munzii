@@ -23,10 +23,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".AddActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".AuthActivity"
             android:exported="false" />
