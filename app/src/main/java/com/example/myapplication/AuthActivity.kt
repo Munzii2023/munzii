@@ -135,6 +135,8 @@ class AuthActivity : AppCompatActivity() {
                 googleLoginBtn.visibility = View.GONE
                 authEmailEditView.visibility = View.VISIBLE
                 authPasswordEditView.visibility = View.VISIBLE
+                authNickNameEditView.visibility=View.VISIBLE
+                authDeviceIdEditView.visibility=View.VISIBLE
                 signBtn.visibility = View.VISIBLE
                 loginBtn.visibility = View.GONE
             }
@@ -146,6 +148,8 @@ class AuthActivity : AppCompatActivity() {
                 googleLoginBtn.visibility= View.GONE
                 authEmailEditView.visibility= View.GONE
                 authPasswordEditView.visibility= View.GONE
+                authNickNameEditView.visibility=View.GONE
+                authDeviceIdEditView.visibility=View.GONE
                 signBtn.visibility= View.GONE
                 loginBtn.visibility= View.GONE
             }
@@ -158,6 +162,8 @@ class AuthActivity : AppCompatActivity() {
                 googleLoginBtn.visibility = View.VISIBLE
                 authEmailEditView.visibility = View.VISIBLE
                 authPasswordEditView.visibility = View.VISIBLE
+                authNickNameEditView.visibility=View.GONE
+                authDeviceIdEditView.visibility=View.GONE
                 signBtn.visibility = View.GONE
                 loginBtn.visibility = View.VISIBLE
             }
