@@ -12,9 +12,12 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.GoogleAuthProvider
+import java.util.*
+
 
 class AuthActivity : AppCompatActivity() {
     lateinit var binding: ActivityAuthBinding
+    lateinit var filePath: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +57,13 @@ class AuthActivity : AppCompatActivity() {
                     binding.authEmailEditView.text.clear()
                     binding.authPasswordEditView.text.clear()
                     //기기id, 닉네임 firebase에 들어가게
+                    if(binding.authEmailEditView.text.isNotEmpty() && binding.authNickNameEditView.text.isNotEmpty()){
+                        //firestore 저장
+                        saveStore()
+                    }else{
+                        Toast.makeText(this, "내용을 입력해주세요..", Toast.LENGTH_SHORT).show()
+                    }
+                    finish()
                 }
         }
 
@@ -79,8 +89,10 @@ class AuthActivity : AppCompatActivity() {
                     }
                     binding.authEmailEditView.text.clear()
                     binding.authPasswordEditView.text.clear()
+
                 }
         }
+
 
         binding.logoutBtn.setOnClickListener {
             //로그아웃...........
@@ -127,6 +139,23 @@ class AuthActivity : AppCompatActivity() {
         }
     }
 
+    fun saveStore(){
+        val data = mapOf(
+            "email" to binding.authEmailEditView.text.toString(),
+            "nickname" to binding.authNickNameEditView.text.toString(),
+            "deviceid" to binding.authDeviceIdEditView.text.toString()
+        )
+
+        MyApplication.db.collection("news")
+            .add(data)
+            .addOnSuccessListener {
+                Log.d("mobileApp", "data firestore save ok")
+                //uploadImage(it.id)
+            }
+            .addOnFailureListener{
+                Log.d("mobileApp", "data firestore save error - ${it.toString()}")
+            }
+    }
     fun changeVisibility(mode: String){
         if(mode.equals("signin")){
             binding.run {

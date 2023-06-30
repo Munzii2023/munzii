@@ -1,6 +1,6 @@
 package com.example.myapplication
 
-class MemberModel (
+data class MemberModel (
     var docId: String? = null,
     var email: String? = null,
     var nickname: String? = null,
