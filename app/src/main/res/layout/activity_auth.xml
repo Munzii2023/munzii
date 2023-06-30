@@ -58,7 +58,7 @@
             android:layout_marginTop="20dp"
             android:hint="이메일"
             android:inputType="textEmailAddress"
-            android:visibility="gone" />
+            android:visibility= "gone"/>
 
         <EditText
             android:id="@+id/authPasswordEditView"
@@ -67,7 +67,21 @@
             android:layout_marginTop="20dp"
             android:hint="비밀번호 - 6자 이상"
             android:inputType="textPassword"
-            android:visibility="gone" />
+            android:visibility= "gone"/>
+        <EditText
+            android:id="@+id/authNickNameEditView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="닉네임"
+            android:visibility= "gone"/>
+        <EditText
+            android:id="@+id/authDeviceIdEditView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:hint="기기 ID"
+            android:visibility= "gone"/>
 
         <Button
             android:id="@+id/signBtn"
