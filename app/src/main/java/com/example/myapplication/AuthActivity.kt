@@ -53,6 +53,7 @@ class AuthActivity : AppCompatActivity() {
                     }
                     binding.authEmailEditView.text.clear()
                     binding.authPasswordEditView.text.clear()
+                    //기기id, 닉네임 firebase에 들어가게
                 }
         }
 
