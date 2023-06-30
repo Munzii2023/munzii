@@ -1,17 +1,16 @@
 package com.example.myapplication
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.databinding.ActivityAuthBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
-import com.google.firebase.auth.GoogleAuthCredential
 import com.google.firebase.auth.GoogleAuthProvider
 
 class AuthActivity : AppCompatActivity() {
@@ -89,10 +88,7 @@ class AuthActivity : AppCompatActivity() {
             //changeVisibility("logout")
             finish()
         }
-        
-        binding.changeBtn.setOnClickListener{
-            //회원정보 수정
-        }
+
 
         val requestLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
             val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
@@ -135,7 +131,6 @@ class AuthActivity : AppCompatActivity() {
             binding.run {
                 logoutBtn.visibility = View.GONE
                 goSignInBtn.visibility = View.GONE
-                changeBtn.visibility=View.GONE
                 googleLoginBtn.visibility = View.GONE
                 authEmailEditView.visibility = View.VISIBLE
                 authPasswordEditView.visibility = View.VISIBLE
@@ -146,7 +141,6 @@ class AuthActivity : AppCompatActivity() {
             binding.run {
                 authMainTextView.text = "${MyApplication.email} 님 반갑습니다."
                 logoutBtn.visibility= View.VISIBLE
-                changeBtn.visibility=View.VISIBLE
                 goSignInBtn.visibility= View.GONE
                 googleLoginBtn.visibility= View.GONE
                 authEmailEditView.visibility= View.GONE
@@ -159,7 +153,6 @@ class AuthActivity : AppCompatActivity() {
             binding.run {
                 authMainTextView.text = "로그인 하거나 회원가입 해주세요."
                 logoutBtn.visibility = View.GONE
-                changeBtn.visibility=View.GONE
                 goSignInBtn.visibility = View.VISIBLE
                 googleLoginBtn.visibility = View.VISIBLE
                 authEmailEditView.visibility = View.VISIBLE
