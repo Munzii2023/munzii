@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
+import android.provider.ContactsContract.CommonDataKinds.Nickname
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -35,6 +36,9 @@ class AuthActivity : AppCompatActivity() {
             //이메일,비밀번호 회원가입........................
             val email:String = binding.authEmailEditView.text.toString()
             val password:String = binding.authPasswordEditView.text.toString()
+            val Nickname:String = binding.authNickNameEditView.text.toString()
+            val DeviceId:String = binding.authDeviceIdEditView.text.toString()
+
             MyApplication.auth.createUserWithEmailAndPassword(email,password)
                 .addOnCompleteListener(this){task->
                     if(task.isSuccessful){
@@ -54,8 +58,7 @@ class AuthActivity : AppCompatActivity() {
                         Toast.makeText(baseContext, "회원가입 실패...", Toast.LENGTH_LONG).show()
                         changeVisibility("logout")
                     }
-                    binding.authEmailEditView.text.clear()
-                    binding.authPasswordEditView.text.clear()
+
                     //기기id, 닉네임 firebase에 들어가게
                     if(binding.authEmailEditView.text.isNotEmpty() && binding.authNickNameEditView.text.isNotEmpty()){
                         //firestore 저장
@@ -146,11 +149,10 @@ class AuthActivity : AppCompatActivity() {
             "deviceid" to binding.authDeviceIdEditView.text.toString()
         )
 
-        MyApplication.db.collection("news")
+        MyApplication.db.collection("member")
             .add(data)
             .addOnSuccessListener {
                 Log.d("mobileApp", "data firestore save ok")
-                //uploadImage(it.id)
             }
             .addOnFailureListener{
                 Log.d("mobileApp", "data firestore save error - ${it.toString()}")
