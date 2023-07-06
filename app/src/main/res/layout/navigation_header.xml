@@ -13,42 +13,20 @@
             android:gravity="center"
             android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="40dp"
-                app:cardCornerRadius="75dp"
-                app:cardElevation="0dp"
-                >
-
-                <ImageView
-                    android:id="@+id/userImageView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/user_basic" />
-
-            </androidx.cardview.widget.CardView>
-
-            <TextView
-                android:id="@+id/header_name"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:layout_marginTop="10dp"
-                android:text="이름"
-                android:textColor="@color/white"
-                android:textSize="15dp"
-                tools:ignore="TextSizeCheck" />
-            />
-
             <TextView
                 android:id="@+id/header_email"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:text="이메일"
-                android:textSize="10dp"
+                android:text="Munzii"
+                android:textSize="25dp"
                 android:textColor="@color/white"/>
             />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/login"
+                android:text="인증"/>
         </LinearLayout>
 
 </RelativeLayout>
