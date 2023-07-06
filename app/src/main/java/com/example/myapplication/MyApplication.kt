@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.app.Application
+import android.util.Log
 import androidx.multidex.MultiDexApplication
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -17,14 +18,34 @@ class MyApplication : MultiDexApplication() {
 
         lateinit var auth : FirebaseAuth
         var email:String? = null
-        fun checkAuth(): Boolean{
-            var currentuser = auth.currentUser
-            return currentuser?.let{
-                email = currentuser.email
-                if(currentuser.isEmailVerified) true
-                else false
-            } ?:false
+        var nickname:String? = null
+
+        fun checkAuth(): Boolean {
+            val currentUser = auth.currentUser
+            return currentUser?.let {
+                email = currentUser.email
+                val collectionPath = "member"
+                val documentPath = email!!
+                Log.d("mobile", email!!)
+
+                db.collection(collectionPath).document(documentPath).get()
+                    .addOnSuccessListener { document ->
+                        if (document != null && document.exists()) {
+                            nickname = document.getString("nickname")
+                            Log.d("mobile", nickname!!)
+                            // 가져온 텍스트를 사용합니다.
+                            // ...
+                        } else {
+                            // 도큐먼트가 존재하지 않음
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        // 가져오기 실패 처리
+                    }
+                currentUser.isEmailVerified
+            } ?: false
         }
+
 
 //        var networkService : NetworkService
 //        val retrofit: Retrofit

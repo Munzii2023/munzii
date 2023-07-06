@@ -34,8 +34,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         if (MyApplication.checkAuth()) {
             headerBinding.headerEmail.text = MyApplication.email
+            headerBinding.headerName.text = MyApplication.nickname
         } else {
             headerBinding.headerEmail.text = "로그인이 필요합니다"
+            headerBinding.headerName.text = ""
         }
     }
 
@@ -51,9 +53,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if(_binding.headerEmail.text.equals("로그인이 필요합니다")){
             if(MyApplication.checkAuth()){
                 _binding.headerEmail!!.text= MyApplication.email
+                _binding.headerName!!.text=MyApplication.nickname //있어야 함
             }
             else{
                 _binding.headerEmail!!.text = "로그인이 필요합니다"
+                _binding.headerName!!.text= ""
             }
         }
 
