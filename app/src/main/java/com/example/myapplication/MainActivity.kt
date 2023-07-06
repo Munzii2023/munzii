@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.item3 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 3")}
             R.id.item4 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 4")}
         }
-        return true}
+        return true
+    }
 
     }
