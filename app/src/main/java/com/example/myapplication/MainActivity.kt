@@ -8,7 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
+import androidx.core.view.GravityCompat
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.material.navigation.NavigationView
@@ -44,6 +46,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(binding.root)
         binding.mainDrawer.setNavigationItemSelectedListener(this)
 
+        binding.navBtn.setOnClickListener {
+               binding.drawer.openDrawer(GravityCompat.START)
+        }
+
         // 네이버 지도
         mapView = findViewById(R.id.navermap_view)
         mapView.onCreate(savedInstanceState)
@@ -51,6 +57,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // 위치를 반환하는 구현체인 FusedLocationSource 생성
         mLocationSource = FusedLocationSource(this, PERMISSION_REQUEST_CODE)
+
+        binding.mapsSearch.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+
+                // 검색 버튼 누를 때 호출
+
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                // 검색창에서 글자가 변경이 일어날 때마다 호출
+                return true
+            }
+        })
 
     }
 
@@ -167,12 +187,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             lon = location.longitude
             setMark(marker, lat, lon, R.drawable.baseline_place_24)
 
+            /* //마커 움직이는 거 어케하는지 모르겠어염..
+            val location = LatLng(location.latitude, location.longitude)
+            marker.position = location
+            naverMap.moveCamera(CameraUpdate.scrollTo(location))
+            */
+
             /*Toast.makeText(
                 applicationContext,
                 "$lat, $lon",
                 Toast.LENGTH_SHORT
             ).show()*/
         }
+
+
+
+
 
     }
 
