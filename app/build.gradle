@@ -72,4 +72,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-storage:8.0.1'
     kapt 'android.arch.lifecycle:compiler:1.1.1'
     kapt 'com.github.bumptech.glide:compiler:4.13.2'
+
+    //네이버 지도 sdk
+    implementation 'com.naver.maps:map-sdk:3.12.0'
 }
