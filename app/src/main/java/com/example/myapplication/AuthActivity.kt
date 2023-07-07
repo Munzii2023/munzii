@@ -148,9 +148,10 @@ class AuthActivity : AppCompatActivity() {
             "nickname" to binding.authNickNameEditView.text.toString(),
             "deviceid" to binding.authDeviceIdEditView.text.toString()
         )
+        val email: String = data["email"] as String
 
-        MyApplication.db.collection("member")
-            .add(data)
+        MyApplication.db.collection("member").document(email)
+            .set(data)
             .addOnSuccessListener {
                 Log.d("mobileApp", "data firestore save ok")
             }

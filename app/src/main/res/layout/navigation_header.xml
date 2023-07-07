@@ -13,10 +13,10 @@
             android:gravity="center"
             android:orientation="vertical">
 
+
             <androidx.cardview.widget.CardView
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:layout_marginTop="40dp"
                 app:cardCornerRadius="75dp"
                 app:cardElevation="0dp"
                 >
@@ -35,18 +35,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:layout_marginTop="10dp"
-                android:text="이름"
-                android:textColor="@color/white"
-                android:textSize="15dp"
-                tools:ignore="TextSizeCheck" />
+                android:text=""
+                android:textSize="20dp"
+                android:textColor="@color/white"/>
             />
 
             <TextView
                 android:id="@+id/header_email"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:text="이메일"
-                android:textSize="10dp"
+                android:text="로그인이 필요합니다"
+                android:textSize="20dp"
                 android:textColor="@color/white"/>
             />
         </LinearLayout>

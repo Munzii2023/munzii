@@ -6,52 +6,67 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import com.example.myapplication.databinding.ActivityMainBinding
+import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.material.navigation.NavigationView
+import org.w3c.dom.Text
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     lateinit var binding: ActivityMainBinding
-    var authMenuItem : MenuItem? = null
+    lateinit var _binding : NavigationHeaderBinding
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityMainBinding.inflate(layoutInflater)
+        _binding = NavigationHeaderBinding.bind(binding.mainDrawer.getHeaderView(0))
+
         setContentView(binding.root)
+        binding.mainDrawer.setNavigationItemSelectedListener(this)
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_main, menu)
+    private fun updateNavigationHeader() {
+        val headerView = binding.mainDrawer.getHeaderView(0)
+        val headerBinding = NavigationHeaderBinding.bind(headerView)
 
-        authMenuItem = menu!!.findItem(R.id.menu_auth)
-        if(MyApplication.checkAuth()){
-            authMenuItem!!.title = "${MyApplication.email}님"
+        if (MyApplication.checkAuth()) {
+            headerBinding.headerEmail.text = MyApplication.email
+            headerBinding.headerName.text = MyApplication.nickname
+        } else {
+            headerBinding.headerEmail.text = "로그인이 필요합니다"
+            headerBinding.headerName.text = ""
         }
-        else{
-            authMenuItem!!.title = "인증"
-        }
-        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateNavigationHeader()
     }
 
     override fun onStart(){
         // Intent에서 finish() 돌아올 때 실행
         // onCreate -> onStart -> onCreateOptionsMenu
         super.onStart()
-        if(authMenuItem != null){
+        if(_binding.headerEmail.text.equals("로그인이 필요합니다")){
             if(MyApplication.checkAuth()){
-                authMenuItem!!.title = "${MyApplication.email}님"
+                _binding.headerEmail!!.text= MyApplication.email
+                _binding.headerName!!.text=MyApplication.nickname //있어야 함
             }
             else{
-                authMenuItem!!.title = "인증"
+                _binding.headerEmail!!.text = "로그인이 필요합니다"
+                _binding.headerName!!.text= ""
             }
         }
 
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+  /*  override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if(item.itemId === R.id.menu_auth){
             val intent = Intent(this, AuthActivity::class.java)
-            if(authMenuItem!!.title!!.equals("인증")){
+            if(_binding.headerName!!.text!!.equals("인증")){
                 intent.putExtra("data", "logout")
             }
             else{ //이메일, 구글계정
@@ -60,15 +75,27 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             startActivity(intent)
         }
         return super.onOptionsItemSelected(item)
-    }
+    } */
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.item1 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 1")}
             R.id.item2 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 2")}
             R.id.item3 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 3")}
-            R.id.item4 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 4")}
+            R.id.item4 -> {
+                if(item.itemId === R.id.item4){
+                    val intent = Intent(this, AuthActivity::class.java)
+                    if(_binding.headerEmail!!.text!!.equals("로그인이 필요합니다")){
+                        intent.putExtra("data", "logout")
+                    }
+                    else{ //이메일, 구글계정
+                        intent.putExtra("data", "login")
+                    }
+                    startActivity(intent)
+                }
+            }
         }
-        return true}
+        return true
+    }
 
     }

@@ -17,5 +17,5 @@
     <item
         android:id="@+id/item4"
         android:icon="@android:drawable/ic_menu_add"
-        android:title="로그인"/>
+        android:title="로그인/회원가입"/>
 </menu>
