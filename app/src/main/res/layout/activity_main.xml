@@ -1,41 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity"
     android:id="@+id/drawer"
     android:fitsSystemWindows="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-<com.google.android.material.navigation.NavigationView
-android:id="@+id/main_drawer"
-android:layout_width="300dp"
-android:layout_height="match_parent"
-android:background="#D0FDFC"
-android:text="Drawer Layout!!!"
-android:fitsSystemWindows="true"
-android:gravity="center"
-android:layout_gravity="start"
-app:headerLayout="@layout/navigation_header"
-app:menu="@menu/menu_navigation"/>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    <!-- 네이버 지도 -->
-    <fragment
-        android:id="@+id/map_fragment"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.naver.maps.map.MapFragment"
-        tools:ignore="MissingClass" />
-    </LinearLayout>
+        tools:context=".MainActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <!-- 네이버 지도 -->
+        <com.naver.maps.map.MapView
+            android:id="@+id/navermap_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        </LinearLayout>
 
 
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/main_drawer"
+            android:layout_width="300dp"
+            android:layout_height="match_parent"
+            android:background="#D0FDFC"
+            android:text="Drawer Layout!!!"
+            android:fitsSystemWindows="true"
+            android:gravity="center"
+            android:layout_gravity="start"
+            app:headerLayout="@layout/navigation_header"
+            app:menu="@menu/menu_navigation"/>
 
 
 </androidx.drawerlayout.widget.DrawerLayout>
