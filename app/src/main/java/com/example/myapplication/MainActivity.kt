@@ -78,7 +78,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onQueryTextSubmit(query: String?): Boolean {
 
                 // 검색 버튼 누를 때 호출
+                query?.let {
+                    val latLng = getLatLngFromAddress(it)
+                    if (latLng != null) {
+                        // 마커 위치 변경
+                        marker.position = latLng
+                        naverMap.moveCamera(CameraUpdate.scrollTo(latLng))
 
+                        // 주소 가져오기
+                        val address = getAddress(latLng.latitude, latLng.longitude)
+                        Log.d("mobileApp", address)
+                    } else {
+                        // 주소를 찾을 수 없는 경우 처리
+                    }
+                }
                 return true
             }
 
@@ -249,28 +262,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
-                currentLocation = location
-                // 위치 오버레이의 가시성은 기본적으로 false로 지정되어 있습니다. 가시성을 true로 변경하면 지도에 위치 오버레이가 나타납니다.
-                // 파랑색 점, 현재 위치 표시
-                naverMap.locationOverlay.run {
-                    isVisible = true
-                    position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
-                }
+                if (location != null) {
+                    currentLocation = location
+                    // 위치 오버레이의 가시성은 기본적으로 false로 지정되어 있습니다. 가시성을 true로 변경하면 지도에 위치 오버레이가 나타납니다.
+                    // 파랑색 점, 현재 위치 표시
+                    naverMap.locationOverlay.run {
+                        isVisible = true
+                        position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
 
-                // 카메라 현재위치로 이동
-                val cameraUpdate = CameraUpdate.scrollTo(
-                    LatLng(
-                        currentLocation!!.latitude,
-                        currentLocation!!.longitude
+                    }
+
+                    // 카메라 현재위치로 이동
+                    val cameraUpdate = CameraUpdate.scrollTo(
+                        LatLng(
+                            currentLocation!!.latitude,
+                            currentLocation!!.longitude
+                        )
                     )
-                )
-                naverMap.moveCamera(cameraUpdate)
+                    naverMap.moveCamera(cameraUpdate)
 
-                // 빨간색 마커 현재위치로 변경
-                marker.position = LatLng(
-                    naverMap.cameraPosition.target.latitude,
-                    naverMap.cameraPosition.target.longitude
-                )
+                    // 빨간색 마커 현재위치로 변경
+                    marker.position = LatLng(
+                        naverMap.cameraPosition.target.latitude,
+                        naverMap.cameraPosition.target.longitude
+                    )
+                }
             }
 
         naverMap.addOnLocationChangeListener { location ->
@@ -303,6 +319,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             e.printStackTrace()
         }
         return addressResult
+    }
+
+    // 주소 -> 좌표 변환
+    private fun getLatLngFromAddress(address: String): LatLng? {
+        val geocoder = Geocoder(this, Locale.KOREA)
+        val addressList = geocoder.getFromLocationName(address, 1)
+        return if (addressList != null && addressList.isNotEmpty()) {
+            val latitude = addressList[0].latitude
+            val longitude = addressList[0].longitude
+            LatLng(latitude, longitude)
+        } else {
+            null
+        }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
