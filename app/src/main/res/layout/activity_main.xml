@@ -8,7 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".MainActivity">
@@ -58,8 +58,7 @@
 
         </LinearLayout>
 
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </RelativeLayout>
 
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/main_drawer"
