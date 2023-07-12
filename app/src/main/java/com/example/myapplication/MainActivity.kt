@@ -249,28 +249,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
-                currentLocation = location
-                // 위치 오버레이의 가시성은 기본적으로 false로 지정되어 있습니다. 가시성을 true로 변경하면 지도에 위치 오버레이가 나타납니다.
-                // 파랑색 점, 현재 위치 표시
-                naverMap.locationOverlay.run {
-                    isVisible = true
-                    position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
-                }
+                if (location != null) {
+                    currentLocation = location
+                    // 위치 오버레이의 가시성은 기본적으로 false로 지정되어 있습니다. 가시성을 true로 변경하면 지도에 위치 오버레이가 나타납니다.
+                    // 파랑색 점, 현재 위치 표시
+                    naverMap.locationOverlay.run {
+                        isVisible = true
+                        position = LatLng(currentLocation!!.latitude, currentLocation!!.longitude)
 
-                // 카메라 현재위치로 이동
-                val cameraUpdate = CameraUpdate.scrollTo(
-                    LatLng(
-                        currentLocation!!.latitude,
-                        currentLocation!!.longitude
+                    }
+
+                    // 카메라 현재위치로 이동
+                    val cameraUpdate = CameraUpdate.scrollTo(
+                        LatLng(
+                            currentLocation!!.latitude,
+                            currentLocation!!.longitude
+                        )
                     )
-                )
-                naverMap.moveCamera(cameraUpdate)
+                    naverMap.moveCamera(cameraUpdate)
 
-                // 빨간색 마커 현재위치로 변경
-                marker.position = LatLng(
-                    naverMap.cameraPosition.target.latitude,
-                    naverMap.cameraPosition.target.longitude
-                )
+                    // 빨간색 마커 현재위치로 변경
+                    marker.position = LatLng(
+                        naverMap.cameraPosition.target.latitude,
+                        naverMap.cameraPosition.target.longitude
+                    )
+                }
             }
 
         naverMap.addOnLocationChangeListener { location ->
