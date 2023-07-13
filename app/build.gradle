@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'com.google.gms.google-services'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -13,6 +15,7 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -30,6 +33,12 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    viewBinding{
+        enabled = true
+    }
+    dataBinding{
+        enabled = true
+    }
 }
 
 dependencies {
@@ -38,7 +47,36 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.privacysandbox.tools:tools-core:+'
+    implementation 'androidx.contentpager:contentpager:1.0.0'
+    implementation 'androidx.compose.foundation:foundation-layout:1.1.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test.espmenu_navigation.xmlresso:espresso-core:3.5.1'
+
+    implementation 'com.android.volley:volley:1.2.1'
+    implementation 'com.github.bumptech.glide:glide:4.13.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.0.0'
+    implementation 'com.google.code.gson:gson:2.8.9'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    implementation platform('com.google.firebase:firebase-bom:32.0.0')
+    implementation 'com.google.firebase:firebase-bom:32.0.0'
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.google.firebase:firebase-auth-ktx:22.0.0'
+
+    implementation 'com.google.firebase:firebase-firestore-ktx:24.6.0'
+
+    implementation 'com.google.firebase:firebase-storage-ktx:20.2.0'
+    implementation 'com.firebaseui:firebase-ui-storage:8.0.1'
+    kapt 'android.arch.lifecycle:compiler:1.1.1'
+    kapt 'com.github.bumptech.glide:compiler:4.13.2'
+
+    //네이버 지도 sdk
+    implementation 'com.naver.maps:map-sdk:3.14.0'
+
+    //위치 권한 요청 Ted Permission - RxJava3
+    implementation 'io.github.ParkSangGwon:tedpermission-rx3:3.3.0'
+    implementation("com.google.android.gms:play-services-location:17.0.0")
 }
