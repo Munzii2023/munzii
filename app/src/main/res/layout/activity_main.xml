@@ -18,47 +18,56 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <android.widget.Button
-                android:id="@+id/navBtn"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_gravity="end"
-                android:layout_marginLeft="10dp"
-                android:gravity="right"
-                android:background="@drawable/baseline_dehaze_24"/>
-            <Button
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="dd"
-                android:id="@+id/btntest"/>
+                android:orientation="horizontal">
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                <android.widget.Button
+                    android:id="@+id/navBtn"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_gravity="end"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="right"
+                    android:background="@drawable/baseline_dehaze_24"/>
 
-            <androidx.appcompat.widget.SearchView
-                android:id="@+id/maps_search"
-                app:iconifiedByDefault="true"
-                app:queryHint="주소를 입력하세요"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="dd"
+                    android:id="@+id/btntest"/>
 
-        </LinearLayout>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/maps_search"
+                    app:iconifiedByDefault="true"
+                    app:queryHint="주소를 입력하세요"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </LinearLayout>
 
             <!-- 네이버 지도 -->
             <com.naver.maps.map.MapView
                 android:id="@+id/navermap_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent" >
+
+                <Button
+                    android:id="@+id/btnDeliveryVehicle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="택배 차량" />
+            </com.naver.maps.map.MapView>
 
         </LinearLayout>
 

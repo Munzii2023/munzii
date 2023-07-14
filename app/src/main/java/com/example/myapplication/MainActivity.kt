@@ -72,8 +72,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
             var keyword = getSido(address)
 
+        }
 
-
+        binding.btnDeliveryVehicle.setOnClickListener {
+            // SecondActivity로 이동하는 인텐트 시작
+            val intent = Intent(this, SecondActivity::class.java)
+            startActivity(intent)
         }
 
         // 네이버 지도

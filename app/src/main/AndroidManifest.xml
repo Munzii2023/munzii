@@ -22,6 +22,9 @@
             android:name=".MainActivity"
             android:exported="true" />
         <activity
+            android:name=".SecondActivity"
+            android:exported="true" />
+        <activity
             android:name=".AuthActivity"
             android:exported="false" />
         <activity
