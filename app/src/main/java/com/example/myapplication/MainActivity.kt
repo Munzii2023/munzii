@@ -7,28 +7,32 @@ import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.GravityCompat
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
-import com.gun0912.tedpermission.rx3.TedPermission
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Response
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
+import java.net.URL
 import java.util.*
-import kotlin.collections.ArrayList
+import javax.security.auth.callback.Callback
 import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -45,12 +49,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mLocationSource: FusedLocationSource
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var marker : Marker
+    private val mMarkerList: List<Marker> = ArrayList() //공공데이터에서 불러오는 미세먼지 마커들
+
 
     //현재 위치 저장
     private var lat by Delegates.notNull<Double>()
     private var lon by Delegates.notNull<Double>()
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +66,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding.navBtn.setOnClickListener {
                binding.drawer.openDrawer(GravityCompat.START)
+        }
+
+        binding.btntest.setOnClickListener {
+            val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
+            var keyword = getSido(address)
+
+
+
         }
 
         // 네이버 지도
@@ -103,7 +115,55 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
+
     }
+
+
+    /*
+    private fun fetchFineDust(sidoName: String, searchCondition: String) {
+    val retrofit = Retrofit.Builder()
+        .baseUrl(DustAPI.BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    val dustApi = retrofit.create(DustAPI::class.java)
+    dustApi.getFineDustbySido(sidoName, searchCondition).enqueue(object : Callback<FineDustResult> {
+        override fun onResponse(call: Call<FineDustResult>, response: Response<FineDustResult>) {
+            // 200은 성공을 의미합니다.
+            if (response.code() == 200) {
+                mResult = response.body()
+                setDustOnView()
+            }
+        }
+
+    override fun onFailure(call: Call<FineDustResult>, t: Throwable) {
+
+       }
+        })
+    }
+
+    //API에서 가져온 가게 좌표마다 marker 띄움
+    private fun updateMapMarkers(result: StoreSaleResult) {
+        resetMarkerList()
+        if (result.stores != null && result.stores.size > 0) {
+            for (mask in result.stores) {
+                val marker = Marker()
+                marker.tag = mask
+                marker.position = LatLng(mask.lat, mask.lng)
+
+                when (mask.remain_stat.toLowerCase()) {
+                    "plenty" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_green)
+                    "some" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_yellow)
+                    "few" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_red)
+                    else -> marker.icon = OverlayImage.fromResource(R.drawable.marker_gray)
+                }
+                marker.anchor = PointF(0.5f, 1.0f)
+                marker.map = mnaverMap
+                marker.setOnClickListener(this)
+                mMarkerList.add(marker)
+            }
+        }
+    }
+    */
 
     private fun updateNavigationHeader() {
         val headerView = binding.mainDrawer.getHeaderView(0)
@@ -295,6 +355,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //setMark(marker, lat, lon, R.drawable.baseline_place_24)
             //Log.d("mobileApp", getAddress(lat, lon))
         }
+
+    }
+
+    private fun getSido(address : String) {
+        val words = address.split("\\s".toRegex()).toTypedArray()
+        Log.d("mobileApp", words[2]) //현위치 구 불러오기
 
     }
 

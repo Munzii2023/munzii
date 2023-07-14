@@ -7,6 +7,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 // 전역 응용 프로그램 상태를 유지하기 위한 기본 클래스
@@ -19,6 +21,16 @@ class MyApplication : MultiDexApplication() {
         lateinit var auth : FirebaseAuth
         var email:String? = null
         var nickname:String? = null
+
+        var retroInterface : RetroInterface
+        val retrofit : Retrofit
+            get() = Retrofit.Builder()
+                .baseUrl("https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/")
+                .addConverterFactory(GsonConverterFactory.create()) // Json데이터를 사용자가 정의한 Java 객채로 변환해주는 라이브러리
+                .build()
+        init {
+            retroInterface = retrofit.create(RetroInterface::class.java)
+        }
 
         fun checkAuth(): Boolean {
             val currentUser = auth.currentUser
