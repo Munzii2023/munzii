@@ -1,39 +1,36 @@
 package com.example.myapplication
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.databinding.ItemRetrofitBinding
+import retrofit2.Callback
 
-class RetrofitAdapter (var items : Array<ModelMunzzi>) : RecyclerView.Adapter<RetrofitAdapter.ViewHolder>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RetrofitAdapter.ViewHolder {
-        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_retrofit, parent, false)
-        return ViewHolder(itemView)
+class MyRetrofitViewHolder(val binding: ItemRetrofitBinding): RecyclerView.ViewHolder(binding.root)
+
+class RetrofitAdapter(val context: Callback<MyModel>, val datas: MutableList<MyItem>?): RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+    var firstStation:String ?= null
+
+    override fun getItemCount(): Int{
+        return datas?.size ?: 0
     }
 
-    // 전달받은 위치의 아이템 연결
-    override fun onBindViewHolder(holder: RetrofitAdapter.ViewHolder, position: Int) {
-        val item = items[position]
-        holder.setItem(item)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder
+            = MyRetrofitViewHolder(ItemRetrofitBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val binding=(holder as MyRetrofitViewHolder).binding
+
+        //add......................................
+        val model = datas!![position]
+        //binding.itemTm.text = model.item.tm
+        //binding.itemAddr.text = model.item.addr
+        //binding.itemStationName.text = model.item.stationName
+
+
+        firstStation = datas[0].item.stationName
     }
-
-    // 아이템 갯수 리턴
-    override fun getItemCount() = items.count()
-
-    // 뷰 홀더 설정
-    inner class ViewHolder(itemView : View) : RecyclerView.ViewHolder(itemView) {
-        @SuppressLint("SetTextI18n")
-        fun setItem(item : ModelMunzzi) {
-            val tvTime = itemView.findViewById<TextView>(R.id.item_name)           // 시각
-            // tvHumidity = itemView.findViewById<TextView>(R.id.tvHumidity)   // 습도
-            //val tvTemp = itemView.findViewById<TextView>(R.id.tvTemp)           // 온도
-
-            tvTime.text = item.pm25Value
-            //tvHumidity.text = item.humidity +"%"
-            //tvTemp.text = item.temp + "°"
-        }
+    fun getStation() : String? {
+        return firstStation
     }
-
 }
