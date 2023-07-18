@@ -1,7 +1,6 @@
 package com.example.myapplication
 
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
@@ -15,6 +14,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import com.example.myapplication.databinding.ActivityMainBinding
+import com.example.myapplication.databinding.ActivitySecondBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -24,33 +24,22 @@ import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
-import org.json.JSONObject
-import retrofit2.Call
-import retrofit2.Response
-import java.io.BufferedReader
 import java.io.IOException
-import java.io.InputStreamReader
-import java.net.URL
 import java.util.*
-import javax.security.auth.callback.Callback
 import kotlin.properties.Delegates
 
-class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
-    OnMapReadyCallback {
-    lateinit var binding: ActivityMainBinding
-    lateinit var _binding : NavigationHeaderBinding
+class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
+    lateinit var binding: ActivitySecondBinding
     private lateinit var mapView: MapView
     private lateinit var naverMap: NaverMap
     private var PERMISSION_REQUEST_CODE = 100;
     private val PERMISSIONS = arrayOf(
-        ACCESS_FINE_LOCATION,
-        ACCESS_COARSE_LOCATION
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION
     )
     private lateinit var mLocationSource: FusedLocationSource
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var marker : Marker
-    private val mMarkerList: List<Marker> = ArrayList() //공공데이터에서 불러오는 미세먼지 마커들
-
 
     //현재 위치 저장
     private var lat by Delegates.notNull<Double>()
@@ -58,25 +47,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityMainBinding.inflate(layoutInflater)
-        _binding = NavigationHeaderBinding.bind(binding.mainDrawer.getHeaderView(0))
+        binding= ActivitySecondBinding.inflate(layoutInflater)
 
         setContentView(binding.root)
-        binding.mainDrawer.setNavigationItemSelectedListener(this)
 
-        binding.navBtn.setOnClickListener {
-               binding.drawer.openDrawer(GravityCompat.START)
-        }
-
-        binding.btntest.setOnClickListener {
-            val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
-            var keyword = getSido(address)
-
-        }
-
-        binding.btnDeliveryVehicle.setOnClickListener {
+        binding.btnPublicData.setOnClickListener {
             // SecondActivity로 이동하는 인텐트 시작
-            val intent = Intent(this, SecondActivity::class.java)
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
 
@@ -169,77 +146,20 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
     */
 
-    private fun updateNavigationHeader() {
-        val headerView = binding.mainDrawer.getHeaderView(0)
-        val headerBinding = NavigationHeaderBinding.bind(headerView)
 
-        if (MyApplication.checkAuth()) {
-            headerBinding.headerEmail.text = MyApplication.email
-            headerBinding.headerName.text = MyApplication.nickname
-        } else {
-            headerBinding.headerEmail.text = "로그인이 필요합니다"
-            headerBinding.headerName.text = ""
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mapView.onResume()
-        updateNavigationHeader()
-    }
-
-    override fun onStart(){
-        // Intent에서 finish() 돌아올 때 실행
-        // onCreate -> onStart -> onCreateOptionsMenu
-        super.onStart()
-        mapView.onStart()
-        if(_binding.headerEmail.text.equals("로그인이 필요합니다")){
-            if(MyApplication.checkAuth()){
-                _binding.headerEmail!!.text= MyApplication.email
-                _binding.headerName!!.text=MyApplication.nickname //있어야 함
-            }
-            else{
-                _binding.headerEmail!!.text = "로그인이 필요합니다"
-                _binding.headerName!!.text= ""
-            }
-        }
-
-    }
-
-  /*  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId === R.id.menu_auth){
-            val intent = Intent(this, AuthActivity::class.java)
-            if(_binding.headerName!!.text!!.equals("인증")){
-                intent.putExtra("data", "logout")
-            }
-            else{ //이메일, 구글계정
-                intent.putExtra("data", "login")
-            }
-            startActivity(intent)
-        }
-        return super.onOptionsItemSelected(item)
-    } */
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            R.id.item1 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 1")}
-            R.id.item2 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 2")}
-            R.id.item3 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 3")}
-            R.id.item4 -> {
-                if(item.itemId === R.id.item4){
-                    val intent = Intent(this, AuthActivity::class.java)
-                    if(_binding.headerEmail!!.text!!.equals("로그인이 필요합니다")){
-                        intent.putExtra("data", "logout")
-                    }
-                    else{ //이메일, 구글계정
-                        intent.putExtra("data", "login")
-                    }
-                    startActivity(intent)
-                }
-            }
-        }
-        return true
-    }
+    /*  override fun onOptionsItemSelected(item: MenuItem): Boolean {
+          if(item.itemId === R.id.menu_auth){
+              val intent = Intent(this, AuthActivity::class.java)
+              if(_binding.headerName!!.text!!.equals("인증")){
+                  intent.putExtra("data", "logout")
+              }
+              else{ //이메일, 구글계정
+                  intent.putExtra("data", "login")
+              }
+              startActivity(intent)
+          }
+          return super.onOptionsItemSelected(item)
+      } */
 
     /*private fun setMark(marker: Marker, lat: Double, lng: Double, resourceID: Int) { //마커 띄우기
         // 원근감 표시
@@ -309,10 +229,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         var currentLocation: Location?
         if (ActivityCompat.checkSelfPermission(
                 this,
-                ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
                 this,
-                ACCESS_COARSE_LOCATION
+                Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             // TODO: Consider calling
