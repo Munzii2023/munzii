@@ -22,15 +22,28 @@ class MyApplication : MultiDexApplication() {
         var email:String? = null
         var nickname:String? = null
 
+        //측정소 데이터 연결
         var retroInterface : RetroInterface
         val retrofit : Retrofit
             get() = Retrofit.Builder()
-                .baseUrl("https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/")
+                .baseUrl("https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/")
                 .addConverterFactory(GsonConverterFactory.create()) // Json데이터를 사용자가 정의한 Java 객채로 변환해주는 라이브러리
                 .build()
         init {
             retroInterface = retrofit.create(RetroInterface::class.java)
         }
+
+        //미먼 데이터 연결
+        var retroInterface2 : Retrointerface2
+        val retrofit2 : Retrofit
+            get() = Retrofit.Builder()
+                .baseUrl("http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/")
+                .addConverterFactory(GsonConverterFactory.create()) // Json데이터를 사용자가 정의한 Java 객채로 변환해주는 라이브러리
+                .build()
+        init {
+            retroInterface2 = retrofit2.create(Retrointerface2::class.java)
+        }
+
 
         fun checkAuth(): Boolean {
             val currentUser = auth.currentUser

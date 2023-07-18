@@ -14,25 +14,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.Tm128
+import com.naver.maps.geometry.Tm128.valueOf
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
-import org.json.JSONObject
+import kr.hyosang.coordinate.*
 import retrofit2.Call
 import retrofit2.Response
-import java.io.BufferedReader
 import java.io.IOException
-import java.io.InputStreamReader
-import java.net.URL
 import java.util.*
-import javax.security.auth.callback.Callback
 import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -51,7 +50,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var marker : Marker
     private val mMarkerList: List<Marker> = ArrayList() //공공데이터에서 불러오는 미세먼지 마커들
 
-
+    //현재 TM 좌표
+    private var tmX by Delegates.notNull<Double>()
+    private var tmY by Delegates.notNull<Double>()
     //현재 위치 저장
     private var lat by Delegates.notNull<Double>()
     private var lon by Delegates.notNull<Double>()
@@ -66,12 +67,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding.navBtn.setOnClickListener {
                binding.drawer.openDrawer(GravityCompat.START)
-        }
-
-        binding.btntest.setOnClickListener {
-            val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
-            var keyword = getSido(address)
-
         }
 
         binding.btnDeliveryVehicle.setOnClickListener {
@@ -120,6 +115,83 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
+    }
+    private fun getSidoDust(addr : String) {
+        stationFineDust(addr)
+    }
+/*
+    private fun getTmNaver() : Tm128 {
+        val point = LatLng(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
+        val tmPoint = valueOf(point)
+        Log.d("mobileApp", "$tmPoint")
+
+        return tmPoint
+    }
+
+
+    //좌표계 변환
+    private fun getTm(){
+        val wgsPt = CoordPoint(naverMap.cameraPosition.target.longitude, naverMap.cameraPosition.target.latitude)
+        Log.d("mobileApp", wgsPt.x.toString())
+        val tmPt = TransCoord.getTransCoord(wgsPt, TransCoord.COORD_TYPE_WGS84,TransCoord.COORD_TYPE_TM)
+        Log.d("mobileApp", tmPt.x.toString())
+        tmX = tmPt.x
+        tmY = tmPt.y
+    }
+
+    private fun stationDust() { //측정소 API 불러오는 코드
+        //var keyword = binding.edtProduct.text.toString()
+        val tmPoint = getTmNaver()
+        val call: Call<MyModel> = MyApplication.retroInterface.getRetrofit(
+            tmPoint.x.toString(),
+            tmPoint.y.toString(),
+            "json",
+            "ubXQmzOKtgQA4qGn1x/X9iibyvbpy3dYpk/GC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0+hIov6JyWPr8SwBBA==",
+            "1.0"
+        ) //call 객체에 초기화
+        Log.d("mobileApp", "${call.request()}")
+
+        call?.enqueue(object: retrofit2.Callback<MyModel> {
+            override fun onResponse(call: Call<MyModel>, response: Response<MyModel>) {
+                if(response.isSuccessful) {
+                    Log.d("mobileApp", "${response.body()}")
+
+                    //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
+                    //binding.
+                    //    .adapter = RetrofitAdapter(this, response.body()!!.body.items)
+                }
+            }
+
+            override fun onFailure(call: Call<MyModel>, t: Throwable) {
+                Log.d("mobileApp", "${t.toString()}")
+            }
+        })
+    }*/
+
+    private fun stationFineDust(stationName : String) { //미세먼지 API 불러오기
+        val call: Call<MyStationModel> = MyApplication.retroInterface2.getRetrofit2(
+            stationName, //측정소이름
+            "month",
+            "1",
+            "100",
+            "json",
+            "ubXQmzOKtgQA4qGn1x/X9iibyvbpy3dYpk/GC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0+hIov6JyWPr8SwBBA=="
+        ) //call 객체에 초기화
+        Log.d("mobileApp", "${call.request()}")
+
+        call?.enqueue(object: retrofit2.Callback<MyStationModel> {
+            override fun onResponse(call: Call<MyStationModel>, response: Response<MyStationModel>) {
+                if(response.isSuccessful) {
+                    Log.d("mobileApp", "${response.body()}")
+                    //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
+                    //binding.retrofitRecyclerView.adapter = MyRetrofitAdapter(this, response.body()!!.body.items)
+                }
+            }
+
+            override fun onFailure(call: Call<MyStationModel>, t: Throwable) {
+                Log.d("mobileApp", "${t.toString()}")
+            }
+        })
     }
 
 
@@ -276,6 +348,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         naverMap.uiSettings.isLocationButtonEnabled = true
         // 위치를 추적하면서 카메라도 따라 움직인다.
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
+        //stationDust()
 
         // 권한확인. 결과는 onRequestPermissionsResult 콜백 매서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
@@ -303,6 +376,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
+            //여기
+            val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
+            getSidoDust(getSido(address))
             Log.d("mobileApp", getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude))
         }
 
@@ -362,10 +438,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    private fun getSido(address : String) {
+    private fun getSido(address : String) :String {
         val words = address.split("\\s".toRegex()).toTypedArray()
         Log.d("mobileApp", words[2]) //현위치 구 불러오기
-
+        return words[2]
     }
 
     // 좌표 -> 주소 변환
