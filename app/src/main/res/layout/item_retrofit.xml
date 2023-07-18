@@ -20,10 +20,26 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp">
             <TextView
-                android:id="@+id/item_name"
+                android:id="@+id/item_tm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="2.5pm"
+                android:text="tm좌표"
+                android:textStyle="bold"
+                android:textColor="#0000ff"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/item_addr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="주소"
+                android:textStyle="bold"
+                android:textColor="#0000ff"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/item_stationName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="측정소 좌표"
                 android:textStyle="bold"
                 android:textColor="#0000ff"
                 android:textSize="16sp" />

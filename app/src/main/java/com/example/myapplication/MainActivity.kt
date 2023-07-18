@@ -4,14 +4,12 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Point
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
@@ -22,11 +20,9 @@ import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
-import com.naver.maps.geometry.Coord
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Tm128
 import com.naver.maps.geometry.Tm128.valueOf
-import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
@@ -70,7 +66,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.mainDrawer.setNavigationItemSelectedListener(this)
 
         binding.navBtn.setOnClickListener {
-            binding.drawer.openDrawer(GravityCompat.START)
+               binding.drawer.openDrawer(GravityCompat.START)
         }
 
         binding.btnDeliveryVehicle.setOnClickListener {
@@ -120,9 +116,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
     }
-
-    //좌표계 변환
-    private fun getTmNaver() :Tm128 {
+    private fun getSidoDust(addr : String) {
+        stationFineDust(addr)
+    }
+/*
+    private fun getTmNaver() : Tm128 {
         val point = LatLng(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
         val tmPoint = valueOf(point)
         Log.d("mobileApp", "$tmPoint")
@@ -130,6 +128,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return tmPoint
     }
 
+
+    //좌표계 변환
     private fun getTm(){
         val wgsPt = CoordPoint(naverMap.cameraPosition.target.longitude, naverMap.cameraPosition.target.latitude)
         Log.d("mobileApp", wgsPt.x.toString())
@@ -146,7 +146,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             tmPoint.x.toString(),
             tmPoint.y.toString(),
             "json",
-            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "ubXQmzOKtgQA4qGn1x/X9iibyvbpy3dYpk/GC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0+hIov6JyWPr8SwBBA==",
             "1.0"
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
@@ -166,7 +166,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Log.d("mobileApp", "${t.toString()}")
             }
         })
-    }
+    }*/
 
     private fun stationFineDust(stationName : String) { //미세먼지 API 불러오기
         val call: Call<MyStationModel> = MyApplication.retroInterface2.getRetrofit2(
@@ -278,19 +278,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    /*  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-          if(item.itemId === R.id.menu_auth){
-              val intent = Intent(this, AuthActivity::class.java)
-              if(_binding.headerName!!.text!!.equals("인증")){
-                  intent.putExtra("data", "logout")
-              }
-              else{ //이메일, 구글계정
-                  intent.putExtra("data", "login")
-              }
-              startActivity(intent)
-          }
-          return super.onOptionsItemSelected(item)
-      } */
+  /*  override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId === R.id.menu_auth){
+            val intent = Intent(this, AuthActivity::class.java)
+            if(_binding.headerName!!.text!!.equals("인증")){
+                intent.putExtra("data", "logout")
+            }
+            else{ //이메일, 구글계정
+                intent.putExtra("data", "login")
+            }
+            startActivity(intent)
+        }
+        return super.onOptionsItemSelected(item)
+    } */
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
@@ -348,8 +348,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         naverMap.uiSettings.isLocationButtonEnabled = true
         // 위치를 추적하면서 카메라도 따라 움직인다.
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
-
-        stationDust()
+        //stationDust()
 
         // 권한확인. 결과는 onRequestPermissionsResult 콜백 매서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
@@ -369,7 +368,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
-            stationDust()
         }
 
         // 카메라의 움직임 종료에 대한 이벤트 리스너 인터페이스.
@@ -378,6 +376,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
+            //여기
+            val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
+            getSidoDust(getSido(address))
             Log.d("mobileApp", getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude))
         }
 
@@ -437,10 +438,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-    private fun getSido(address : String) {
+    private fun getSido(address : String) :String {
         val words = address.split("\\s".toRegex()).toTypedArray()
         Log.d("mobileApp", words[2]) //현위치 구 불러오기
-
+        return words[2]
     }
 
     // 좌표 -> 주소 변환

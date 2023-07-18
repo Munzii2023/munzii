@@ -23,9 +23,9 @@ class RetrofitAdapter(val context: Callback<MyModel>, val datas: MutableList<MyI
 
         //add......................................
         val model = datas!![position]
-        //binding.itemTm.text = model.item.tm
-        //binding.itemAddr.text = model.item.addr
-        //binding.itemStationName.text = model.item.stationName
+        binding.itemTm.text = model.item.tm
+        binding.itemAddr.text = model.item.addr
+        binding.itemStationName.text = model.item.stationName
 
 
         firstStation = datas[0].item.stationName
