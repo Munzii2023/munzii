@@ -150,6 +150,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     val responseBody = response.body()
                     if (responseBody!=null) {
                         val firstItem = responseBody.response.body.items[0].stationName
+                        stationFineDust(firstItem.toString())
                         Log.d("mobileApp", "첫 번째 item의 stationName: ${firstItem.toString()}")
                     } else {
                         Log.d("mobileApp", "items 리스트가 비어있습니다.")
@@ -175,7 +176,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "1",
             "100",
             "json",
-            "ubXQmzOKtgQA4qGn1x/X9iibyvbpy3dYpk/GC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0+hIov6JyWPr8SwBBA=="
+            "Aiw5CJrCESxncfAEbnKuIzr9RflP47ihkui4zOJYa9uCMrpFXcqSk7CEG/GkFRbb2snRZE60oJSGsSgnyDuw5A=="
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
 
