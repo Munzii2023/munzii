@@ -1,7 +1,5 @@
 package com.example.myapplication
 
-import MYModel
-import MyStationModel
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Intent
@@ -122,16 +120,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         stationFineDust(addr)
     }
 
-    private fun getTmNaver() : Tm128 {
-        val point = LatLng(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
-        val tmPoint = valueOf(point)
-        Log.d("mobileApp", "$tmPoint")
-
-        return tmPoint
-    }
-
-
-    //좌표계 변환
+    //위도경도 좌표계 => tm좌표 변환 함수
     private fun getTm(){
         val wgsPt = CoordPoint(naverMap.cameraPosition.target.longitude, naverMap.cameraPosition.target.latitude)
         Log.d("mobileApp", wgsPt.x.toString())
@@ -143,36 +132,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun stationDust() { //측정소 API 불러오는 코드
         //var keyword = binding.edtProduct.text.toString()
-        val tmPoint = getTmNaver()
-
-        val call: Call<MYModel> = MyApplication.retroInterface.getRetrofit(
-            tmPoint.x.toString(),
-            tmPoint.y.toString(),
+        getTm()
+        val call: Call<MyModel> = MyApplication.retroInterface.getRetrofit(
+            tmX.toString(),
+            tmY.toString(),
             "json",
-            "Aiw5CJrCESxncfAEbnKuIzr9RflP47ihkui4zOJYa9uCMrpFXcqSk7CEG/GkFRbb2snRZE60oJSGsSgnyDuw5A==",
+            "ubXQmzOKtgQA4qGn1x/X9iibyvbpy3dYpk/GC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0+hIov6JyWPr8SwBBA==",
             "1.1"
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
 
-        call?.enqueue(object: retrofit2.Callback<MYModel> {
-            override fun onResponse(call: Call<MYModel>, response: Response<MYModel>) {
+        call?.enqueue(object: retrofit2.Callback<MyModel> {
+            override fun onResponse(call: Call<MyModel>, response: Response<MyModel>) {
                 if(response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody!=null) {
-                        val firstItem = responseBody.response.body.items[0].stationName
-                        Log.d("mobileApp", "첫 번째 item의 stationName: ${firstItem.toString()}")
-                    } else {
-                        Log.d("mobileApp", "items 리스트가 비어있습니다.")
-                    }
+                    Log.d("mobileApp", "${response.body()}")
 
-                    //Log.d("mobileApp", "${response.body()?.body?.items?:emptyList()}")
                     //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
                     //binding.
                     //    .adapter = RetrofitAdapter(this, response.body()!!.body.items)
                 }
             }
 
-            override fun onFailure(call: Call<MYModel>, t: Throwable) {
+            override fun onFailure(call: Call<MyModel>, t: Throwable) {
                 Log.d("mobileApp", "${t.toString()}")
             }
         })
@@ -386,10 +367,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
-            stationDust()
             //여기
-            val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
-            getSidoDust(getSido(address)) //*
+            /*val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
+            getSidoDust(getSido(address))*/
         }
 
         var currentLocation: Location?
@@ -442,6 +422,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         naverMap.addOnLocationChangeListener { location ->
             lat = location.latitude
             lon = location.longitude
+            stationDust()
             //setMark(marker, lat, lon, R.drawable.baseline_place_24)
             //Log.d("mobileApp", getAddress(lat, lon))
         }
