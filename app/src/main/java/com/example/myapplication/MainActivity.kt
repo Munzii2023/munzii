@@ -1,5 +1,7 @@
 package com.example.myapplication
 
+import MYModel
+import MyStationModel
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Intent
@@ -143,27 +145,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //var keyword = binding.edtProduct.text.toString()
         val tmPoint = getTmNaver()
 
-        val call: Call<MyModel> = MyApplication.retroInterface.getRetrofit(
+        val call: Call<MYModel> = MyApplication.retroInterface.getRetrofit(
             tmPoint.x.toString(),
             tmPoint.y.toString(),
             "json",
-            "ubXQmzOKtgQA4qGn1x/X9iibyvbpy3dYpk/GC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0+hIov6JyWPr8SwBBA==",
+            "Aiw5CJrCESxncfAEbnKuIzr9RflP47ihkui4zOJYa9uCMrpFXcqSk7CEG/GkFRbb2snRZE60oJSGsSgnyDuw5A==",
             "1.1"
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
 
-        call?.enqueue(object: retrofit2.Callback<MyModel> {
-            override fun onResponse(call: Call<MyModel>, response: Response<MyModel>) {
+        call?.enqueue(object: retrofit2.Callback<MYModel> {
+            override fun onResponse(call: Call<MYModel>, response: Response<MYModel>) {
                 if(response.isSuccessful) {
-                    Log.d("mobileApp", "${response.body()}")
+                    val responseBody = response.body()
+                    if (responseBody!=null) {
+                        val firstItem = responseBody.response.body.items[0].stationName
+                        Log.d("mobileApp", "첫 번째 item의 stationName: ${firstItem.toString()}")
+                    } else {
+                        Log.d("mobileApp", "items 리스트가 비어있습니다.")
+                    }
 
+                    //Log.d("mobileApp", "${response.body()?.body?.items?:emptyList()}")
                     //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
                     //binding.
                     //    .adapter = RetrofitAdapter(this, response.body()!!.body.items)
                 }
             }
 
-            override fun onFailure(call: Call<MyModel>, t: Throwable) {
+            override fun onFailure(call: Call<MYModel>, t: Throwable) {
                 Log.d("mobileApp", "${t.toString()}")
             }
         })
@@ -380,7 +389,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             stationDust()
             //여기
             val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
-            getSidoDust(getSido(address))
+            getSidoDust(getSido(address)) //*
         }
 
         var currentLocation: Location?

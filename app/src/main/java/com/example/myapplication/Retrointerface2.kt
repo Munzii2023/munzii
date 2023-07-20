@@ -1,10 +1,11 @@
 package com.example.myapplication
 
+import MyStationModel
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface Retrointerface2 {
+interface Retrointerface2 { //측정소정보
     //http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?
     @GET("getMsrstnAcctoRltmMesureDnsty?")
     fun getRetrofit2(

@@ -1,12 +1,27 @@
-package com.example.myapplication
+data class MYModel (val response: Response)
 
-import com.google.gson.annotations.SerializedName
+data class Response (
+    val body: Body,
+    val header: Header
+)
 
-// 날씨 정보를 담는 데이터 클래스
-data class ModelMunzzi(
-    var tm : String? = null,
-    var addr : String? = null,
-    var stationName : String? = null,
+data class Body (
+    val totalCount: Long,
+    val items: List<MunziiItem>,
+    val pageNo: Long,
+    val numOfRows: Long
+)
+
+data class MunziiItem (
+    val stationCode: String ?=null,
+    val tm: Double ?=null,
+    val addr: String ?=null,
+    val stationName: String ?=null
+)
+
+data class Header (
+    val resultMsg: String,
+    val resultCode: String
 )
 
 data class ModelStation(
@@ -19,11 +34,8 @@ data class ModelStation(
     var pm25Value : String ?= null //미세먼지 2.5 농도
 )
 
-data class MyItem(val item: ModelMunzzi)
 data class MyStationItem(val item : ModelStation)
 
-data class MyItems(val items: MutableList<MyItem>)
 data class MyStationItems(val items: MutableList<MyStationItem>)
 
-data class MyModel(val body: MyItems)
 data class MyStationModel(val body: MyStationItems)
