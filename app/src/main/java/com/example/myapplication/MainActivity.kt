@@ -120,16 +120,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         stationFineDust(addr)
     }
 
-    private fun getTmNaver() : Tm128 {
-        val point = LatLng(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
-        val tmPoint = valueOf(point)
-        Log.d("mobileApp", "$tmPoint")
-
-        return tmPoint
-    }
-
-
-    //좌표계 변환
+    //위도경도 좌표계 => tm좌표 변환 함수
     private fun getTm(){
         val wgsPt = CoordPoint(naverMap.cameraPosition.target.longitude, naverMap.cameraPosition.target.latitude)
         Log.d("mobileApp", wgsPt.x.toString())
@@ -141,11 +132,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private fun stationDust() { //측정소 API 불러오는 코드
         //var keyword = binding.edtProduct.text.toString()
-        val tmPoint = getTmNaver()
-
+        getTm()
         val call: Call<MyModel> = MyApplication.retroInterface.getRetrofit(
-            tmPoint.x.toString(),
-            tmPoint.y.toString(),
+            tmX.toString(),
+            tmY.toString(),
             "json",
             "ubXQmzOKtgQA4qGn1x/X9iibyvbpy3dYpk/GC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0+hIov6JyWPr8SwBBA==",
             "1.1"
@@ -377,10 +367,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
-            stationDust()
             //여기
-            val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
-            getSidoDust(getSido(address))
+            /*val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
+            getSidoDust(getSido(address))*/
         }
 
         var currentLocation: Location?
@@ -433,6 +422,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         naverMap.addOnLocationChangeListener { location ->
             lat = location.latitude
             lon = location.longitude
+            stationDust()
             //setMark(marker, lat, lon, R.drawable.baseline_place_24)
             //Log.d("mobileApp", getAddress(lat, lon))
         }
