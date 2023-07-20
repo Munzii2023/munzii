@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun getSidoDust(addr : String) {
         stationFineDust(addr)
     }
-/*
+
     private fun getTmNaver() : Tm128 {
         val point = LatLng(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
         val tmPoint = valueOf(point)
@@ -142,12 +142,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun stationDust() { //측정소 API 불러오는 코드
         //var keyword = binding.edtProduct.text.toString()
         val tmPoint = getTmNaver()
+
         val call: Call<MyModel> = MyApplication.retroInterface.getRetrofit(
             tmPoint.x.toString(),
             tmPoint.y.toString(),
             "json",
             "ubXQmzOKtgQA4qGn1x/X9iibyvbpy3dYpk/GC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0+hIov6JyWPr8SwBBA==",
-            "1.0"
+            "1.1"
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
 
@@ -166,7 +167,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Log.d("mobileApp", "${t.toString()}")
             }
         })
-    }*/
+    }
 
     private fun stationFineDust(stationName : String) { //미세먼지 API 불러오기
         val call: Call<MyStationModel> = MyApplication.retroInterface2.getRetrofit2(
@@ -376,10 +377,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
+            stationDust()
             //여기
             val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
             getSidoDust(getSido(address))
-            Log.d("mobileApp", getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude))
         }
 
         var currentLocation: Location?
