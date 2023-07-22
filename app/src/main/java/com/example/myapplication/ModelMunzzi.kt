@@ -1,20 +1,41 @@
-package com.example.myapplication
+data class MYModel (val response: Response)
 
-import com.google.gson.annotations.SerializedName
-
-// 날씨 정보를 담는 데이터 클래스
-data class ModelMunzzi (
-    @SerializedName("pm25Value") var pm25Value: String = "", //미세먼지
-    @SerializedName("pm10Value") var pm10Value: String = "", //초미세먼지
-    @SerializedName("dataTime") var dataTime: String = "", //측정시각
+data class Response (
+    val body: Body,
+    val header: Header
 )
 
-// xml 파일 형식을 data class로 구현
-data class Munzzi (val response : RESPONSE)
-data class RESPONSE(val header : HEADER, val body : BODY)
-data class HEADER(val resultCode : Int, val resultMsg : String)
-data class BODY(val items : ITEMS, val numOfRows : String, val pageNo : String ,val totalCount : Int)
-data class ITEMS(val item : List<ITEM>)
+data class Body (
+    val totalCount: Long,
+    val items: List<MunziiItem>,
+    val pageNo: Long,
+    val numOfRows: Long
+)
 
+data class MunziiItem (
+    val stationCode: String ?=null,
+    val tm: Double ?=null,
+    val addr: String ?=null,
+    val stationName: String ?=null
+)
 
-data class ITEM(val pm25Value : String, val pm10Value : String, val dataTime : String)
+data class Header (
+    val resultMsg: String,
+    val resultCode: String
+)
+
+data class ModelStation(
+    var numOfRows : String? = null,
+    var pageNo : String? = null,
+    var totalCount : String? = null,
+    var dataTime : String ?= null,
+    var stationName : String ?= null,
+    var pm10Value : String ?= null, //미세먼지 10농도
+    var pm25Value : String ?= null //미세먼지 2.5 농도
+)
+
+data class MyStationItem(val item : ModelStation)
+
+data class MyStationItems(val items: MutableList<MyStationItem>)
+
+data class MyStationModel(val body: MyStationItems)
