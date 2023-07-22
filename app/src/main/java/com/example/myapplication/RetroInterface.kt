@@ -1,18 +1,18 @@
 package com.example.myapplication
 
+import MYModel
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface RetroInterface {
-    //https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=ubXQmzOKtgQA4qGn1x%2FX9iibyvbpy3dYpk%2FGC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0%2BhIov6JyWPr8SwBBA%3D%3D&returnType=xml&numOfRows=50&pageNo=1&stationName=%EA%B0%95%EB%B6%81%EA%B5%AC&dataTerm=DAILY&ver=1.0
-    @GET("getMsrstnAcctoRltmMesureDnsty?")
+interface RetroInterface { //대기오염정보
+    //https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?serviceKey=ubXQmzOKtgQA4qGn1x%2FX9iibyvbpy3dYpk%2FGC9EyPZSPqCKUc7FM9xdkGK7xmQaQrZwB0%2BhIov6JyWPr8SwBBA%3D%3D&returnType=json&tmX=244148.546388&tmY=412423.75772&ver=1.0
+    @GET("getNearbyMsrstnList?")
     fun getRetrofit(
-        @Query("serviceKey") key: String?,
+        @Query("tmX") tmX: String?,
+        @Query("tmY") tmY: String?,
         @Query("returnType") returnType: String?,
-        @Query("numOfRows") numOfRows: String?,
-        @Query("pageNo") pageNo: String?,
-        @Query("sidoName") stationName: String?,
+        @Query("serviceKey") serviceKey: String?,
         @Query("ver") ver: String?
-    ): Call<ModelMunzzi>
+    ): Call<MYModel>
 }
