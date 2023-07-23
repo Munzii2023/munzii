@@ -182,4 +182,3 @@ class AlarmActivity : AppCompatActivity() {
         private const val PERMISSION_REQUEST_CODE = 100
     }
 }
-
