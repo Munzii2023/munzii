@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:name=".MyApplication"
@@ -26,6 +27,9 @@
             android:exported="true" />
         <activity
             android:name=".AuthActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AlarmActivity"
             android:exported="false" />
         <activity
             android:name=".SplahActivity"

@@ -52,6 +52,7 @@ dependencies {
     implementation 'androidx.compose.foundation:foundation-layout:1.1.1'
     implementation files('libs\\TransCoord.jar')
     implementation files('libs\\TransCoord.jar')
+    implementation 'androidx.preference:preference:1.2.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espmenu_navigation.xmlresso:espresso-core:3.5.1'
@@ -81,4 +82,5 @@ dependencies {
     //위치 권한 요청 Ted Permission - RxJava3
     implementation 'io.github.ParkSangGwon:tedpermission-rx3:3.3.0'
     implementation("com.google.android.gms:play-services-location:17.0.0")
+
 }
