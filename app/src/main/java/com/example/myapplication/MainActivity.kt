@@ -296,7 +296,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.item1 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 1")}
-            R.id.item2 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 2")}
+            R.id.item2 -> {
+                if (item.itemId === R.id.item2) {
+                    val intent = Intent(this, AlarmActivity::class.java)
+                    startActivity(intent)
+                }
+            }
             R.id.item3 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 3")}
             R.id.item4 -> {
                 if(item.itemId === R.id.item4){
