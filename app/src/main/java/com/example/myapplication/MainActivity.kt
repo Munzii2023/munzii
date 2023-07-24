@@ -1,7 +1,7 @@
 package com.example.myapplication
 
 import MYModel
-import MyStationModel
+import MySModel
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Intent
@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             tmX.toString(),
             tmY.toString(),
             "json",
-            "Aiw5CJrCESxncfAEbnKuIzr9RflP47ihkui4zOJYa9uCMrpFXcqSk7CEG/GkFRbb2snRZE60oJSGsSgnyDuw5A==",
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
             "1.1"
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
@@ -170,18 +170,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     private fun stationFineDust(stationName : String) { //미세먼지 API 불러오기
-        val call: Call<MyStationModel> = MyApplication.retroInterface2.getRetrofit2(
+        val call: Call<MySModel> = MyApplication.retroInterface2.getRetrofit2(
             stationName, //측정소이름
             "month",
             "1",
             "100",
             "json",
-            "Aiw5CJrCESxncfAEbnKuIzr9RflP47ihkui4zOJYa9uCMrpFXcqSk7CEG/GkFRbb2snRZE60oJSGsSgnyDuw5A=="
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg=="
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
 
-        call?.enqueue(object: retrofit2.Callback<MyStationModel> {
-            override fun onResponse(call: Call<MyStationModel>, response: Response<MyStationModel>) {
+        call?.enqueue(object: retrofit2.Callback<MySModel> {
+            override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
                 if(response.isSuccessful) {
                     Log.d("mobileApp", "${response.body()}")
                     //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
@@ -189,7 +189,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
 
-            override fun onFailure(call: Call<MyStationModel>, t: Throwable) {
+            override fun onFailure(call: Call<MySModel>, t: Throwable) {
                 Log.d("mobileApp", "${t.toString()}")
             }
         })

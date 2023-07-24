@@ -1,6 +1,6 @@
 package com.example.myapplication
 
-import MyStationModel
+import MySModel
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -15,5 +15,5 @@ interface Retrointerface2 { //측정소정보
         @Query("numOfRows") numOfRows: String?,
         @Query("returnType") returnType: String?,
         @Query("serviceKey") serviceKey: String?
-    ): Call<MyStationModel>
+    ): Call<MySModel>
 }
