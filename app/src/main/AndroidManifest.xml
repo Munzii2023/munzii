@@ -10,6 +10,8 @@
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <uses-permission android:name="android.permission.NOTIFICATION_CHANNEL" />
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -43,6 +45,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".AlarmReceiver" />
 
 
         <meta-data
