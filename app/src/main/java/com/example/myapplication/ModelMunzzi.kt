@@ -34,8 +34,24 @@ data class ModelStation(
     var pm25Value : String ?= null //미세먼지 2.5 농도
 )
 
+data class MySModel (val response: SResponse)
+
+data class SResponse (
+    val body: SBody,
+    val header: SHeader
+)
+
+data class SBody (
+    val totalCount: Long,
+    val items: List<Map<String, String?>>,
+    val pageNo: Long,
+    val numOfRows: Long
+)
+
+data class SHeader (
+    val resultMsg: String,
+    val resultCode: String
+)
+
+
 data class MyStationItem(val item : ModelStation)
-
-data class MyStationItems(val items: MutableList<MyStationItem>)
-
-data class MyStationModel(val body: MyStationItems)

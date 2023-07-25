@@ -5,12 +5,13 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <uses-permission android:name="android.permission.NOTIFICATION_CHANNEL" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
         android:name=".MyApplication"
@@ -37,6 +38,9 @@
             android:name=".AuthActivity"
             android:exported="false" />
         <activity
+            android:name=".AlarmActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplahActivity"
             android:exported="true">
             <intent-filter>
@@ -45,8 +49,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <receiver android:name=".AlarmReceiver" />
 
 
         <meta-data

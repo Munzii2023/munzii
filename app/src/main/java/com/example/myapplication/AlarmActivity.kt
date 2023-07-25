@@ -27,6 +27,13 @@ class AlarmActivity : AppCompatActivity() {
     private lateinit var locationEditText: EditText
     private lateinit var timePicker: TimePicker
     private lateinit var notificationStatusRadioGroup: RadioGroup
+    private lateinit var notificationBadStatusRadioGroup: RadioGroup
+    private lateinit var notificationGoodStatusRadioGroup: RadioGroup
+    private lateinit var radioButtonBad: RadioButton
+    private lateinit var radioButtonVeryBad: RadioButton
+    private lateinit var radioButtonNomal: RadioButton
+    private lateinit var radioButtonGood: RadioButton
+    private lateinit var radioButtonVeryGood: RadioButton
     private lateinit var saveButton: Button
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -39,6 +46,13 @@ class AlarmActivity : AppCompatActivity() {
         locationEditText = findViewById(R.id.locationEditText)
         timePicker = findViewById(R.id.timePicker)
         notificationStatusRadioGroup = findViewById(R.id.notificationStatusRadioGroup)
+        notificationBadStatusRadioGroup = findViewById(R.id.notificationBadStatusRadioGroup)
+        notificationGoodStatusRadioGroup = findViewById(R.id.notificationGoodStatusRadioGroup)
+        radioButtonBad = findViewById(R.id.radioButtonBad)
+        radioButtonVeryBad = findViewById(R.id.radioButtonVeryBad)
+        radioButtonNomal = findViewById(R.id.radioButtonNomal)
+        radioButtonGood = findViewById(R.id.radioButtonGood)
+        radioButtonVeryGood = findViewById(R.id.radioButtonVeryGood)
         saveButton = findViewById(R.id.saveButton)
 
         // SharedPreferences 객체 초기화
@@ -54,8 +68,28 @@ class AlarmActivity : AppCompatActivity() {
             notificationSettingsLayout.visibility = View.GONE
         }
 
+
         val savedTime = sharedPreferences.getString("saved_time", "")
         val savedLocation = sharedPreferences.getString("saved_location", "")
+
+        val savedBadStatus = sharedPreferences.getString("saved_bad_status", "")
+        val savedGoodStatus = sharedPreferences.getString("saved_good_status", "")
+
+        // 저장된 값이 있는지 확인하고 해당하는 라디오 버튼을 선택합니다
+        if (savedBadStatus != null && savedBadStatus.isNotEmpty()) {
+            when (savedBadStatus) {
+                "나쁨" -> radioButtonBad.isChecked = true
+                "매우 나쁨" -> radioButtonVeryBad.isChecked = true
+            }
+        }
+
+        if (savedGoodStatus != null && savedGoodStatus.isNotEmpty()) {
+            when (savedGoodStatus) {
+                "보통" -> radioButtonNomal.isChecked = true
+                "좋음" -> radioButtonGood.isChecked = true
+                "매우 좋음" -> radioButtonVeryGood.isChecked = true
+            }
+        }
 
         // 가져온 값을 각각의 UI에 설정
         if (savedTime != null && savedTime.isNotEmpty()) {
@@ -85,7 +119,7 @@ class AlarmActivity : AppCompatActivity() {
 
             Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
 
-            showNotification()
+           showNotification()
 
             // MainActivity로 화면 전환을 위한 코드
             val intent = Intent(this, MainActivity::class.java)
@@ -99,12 +133,28 @@ class AlarmActivity : AppCompatActivity() {
         val isNotificationEnabled = notificationSwitch.isChecked
         val time = "${timePicker.hour}:${timePicker.minute}"
         val location = locationEditText.text.toString()
+        val selectedBadStatus =
+            findViewById<RadioButton>(notificationBadStatusRadioGroup.checkedRadioButtonId)?.text?.toString() ?: ""
+        val selectedGoodStatus =
+            findViewById<RadioButton>(notificationGoodStatusRadioGroup.checkedRadioButtonId)?.text?.toString() ?: ""
 
         val editor = sharedPreferences.edit()
         editor.putBoolean("notification_enabled", isNotificationEnabled)
         editor.putString("saved_time", time)
         editor.putString("saved_location", location)
+        editor.putString("saved_bad_status", selectedBadStatus)
+        editor.putString("saved_good_status", selectedGoodStatus)
+
         editor.apply()
+    }
+
+    private fun displaySavedTimeAndLocation() {
+        // SharedPreferences에서 저장된 시간과 위치를 가져옵니다
+        val savedTime = sharedPreferences.getString("saved_time", "")
+        val savedLocation = sharedPreferences.getString("saved_location", "")
+
+        // 저장된 시간과 위치를 Log로 출력합니다
+        Log.d("AlarmActivity", "저장된 시간: $savedTime, 저장된 위치: $savedLocation")
     }
 
     private fun showNotification() {
@@ -153,18 +203,9 @@ class AlarmActivity : AppCompatActivity() {
         notificationBuilder.setContentIntent(pendingIntent)
 
         // 알림 생성
-        val notificationManager = NotificationManagerCompat.from(context)
+        val notificationManager = NotificationManagerCompat.from(this)
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
 
-    }
-
-    private fun displaySavedTimeAndLocation() {
-        // SharedPreferences에서 저장된 시간과 위치를 가져옵니다
-        val savedTime = sharedPreferences.getString("saved_time", "")
-        val savedLocation = sharedPreferences.getString("saved_location", "")
-
-        // 저장된 시간과 위치를 Log로 출력합니다
-        Log.d("AlarmActivity", "저장된 시간: $savedTime, 저장된 위치: $savedLocation")
     }
 
     private fun createNotificationChannel() {
@@ -192,3 +233,4 @@ class AlarmActivity : AppCompatActivity() {
         const val NOTIFICATION_ID = 1
         private const val PERMISSION_REQUEST_CODE = 100
     }
+}
