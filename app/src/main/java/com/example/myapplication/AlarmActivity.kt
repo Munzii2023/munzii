@@ -1,10 +1,7 @@
 package com.example.myapplication
 
 import android.Manifest
-import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -20,6 +17,8 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.gun0912.tedpermission.provider.TedPermissionProvider.context
+import java.util.*
 
 class AlarmActivity : AppCompatActivity() {
 
@@ -45,6 +44,28 @@ class AlarmActivity : AppCompatActivity() {
         // SharedPreferences 객체 초기화
         sharedPreferences = getSharedPreferences("NotificationSettings", MODE_PRIVATE)
 
+        // 저장된 설정을 가져와서 스위치와 설정값을 보여줍니다.
+        val isNotificationEnabled = sharedPreferences.getBoolean("notification_enabled", false)
+        notificationSwitch.isChecked = isNotificationEnabled
+
+        if (isNotificationEnabled) {
+            notificationSettingsLayout.visibility = View.VISIBLE
+        } else {
+            notificationSettingsLayout.visibility = View.GONE
+        }
+
+        val savedTime = sharedPreferences.getString("saved_time", "")
+        val savedLocation = sharedPreferences.getString("saved_location", "")
+
+        // 가져온 값을 각각의 UI에 설정
+        if (savedTime != null && savedTime.isNotEmpty()) {
+            val timeParts = savedTime.split(":")
+            timePicker.hour = timeParts[0].toInt()
+            timePicker.minute = timeParts[1].toInt()
+        }
+
+        locationEditText.setText(savedLocation)
+
         // Switch 상태 변경 이벤트 처리
         notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
             // Switch 버튼이 Off일 때는 다른 기능들을 숨기고, On일 때는 보이도록 처리
@@ -64,24 +85,7 @@ class AlarmActivity : AppCompatActivity() {
 
             Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
 
-            // SharedPreferences에 저장된 값을 불러와서 UI에 설정
-            val savedTime = sharedPreferences.getString("saved_time", "")
-
-            val savedLocation = sharedPreferences.getString("saved_location", "")
-
-            // 가져온 값을 각각의 UI에 설정
-            if (savedTime != null) {
-                if (savedTime.isNotEmpty()) {
-                    val timeParts = savedTime.split(":")
-                    timePicker.hour = timeParts[0].toInt()
-                    timePicker.minute = timeParts[1].toInt()
-                }
-            }
-
-            locationEditText.setText(savedLocation)
-
-            // 알림 설정 정보가 저장되면 알림을 생성하고 보여줌
-            showNotification()
+           showNotification()
 
             // MainActivity로 화면 전환을 위한 코드
             val intent = Intent(this, MainActivity::class.java)
@@ -92,10 +96,12 @@ class AlarmActivity : AppCompatActivity() {
 
     private fun saveNotificationSettings() {
         // 사용자가 설정한 시간과 위치를 SharedPreferences에 저장
+        val isNotificationEnabled = notificationSwitch.isChecked
         val time = "${timePicker.hour}:${timePicker.minute}"
         val location = locationEditText.text.toString()
 
         val editor = sharedPreferences.edit()
+        editor.putBoolean("notification_enabled", isNotificationEnabled)
         editor.putString("saved_time", time)
         editor.putString("saved_location", location)
         editor.apply()
@@ -116,6 +122,7 @@ class AlarmActivity : AppCompatActivity() {
             .setContentText("알림 내용: 시간 - $time, 위치 - $location")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+
             .setAutoCancel(true)
 
         // 권한 체크
@@ -144,6 +151,10 @@ class AlarmActivity : AppCompatActivity() {
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         notificationBuilder.setContentIntent(pendingIntent)
+
+        // 알림 생성
+        val notificationManager = NotificationManagerCompat.from(context)
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
 
     }
 
