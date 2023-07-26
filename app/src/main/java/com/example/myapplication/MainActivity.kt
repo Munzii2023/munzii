@@ -1,6 +1,8 @@
 package com.example.myapplication
 
 import MYModel
+import MyAModel
+import MyBModel
 import MySModel
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -113,14 +115,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 return true
             }
         })
-
-
-
-
     }
-    private fun getSidoDust(addr : String) {
-        stationFineDust(addr)
-    }
+
 
     //위도경도 좌표계 => tm좌표 변환 함수
     private fun getTm(){
@@ -190,6 +186,32 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             override fun onFailure(call: Call<MySModel>, t: Throwable) {
+                Log.d("mobileApp", "${t.toString()}")
+            }
+        })
+    }
+
+    private fun allOfStation(stationName: String, sidoName : String) {
+        val call: Call<MyBModel> = MyApplication.retroInterface4.getRetrofit4(
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "json",
+            "1",
+            "1",
+            sidoName,
+            stationName
+        ) //call 객체에 초기화
+        Log.d("mobileApp", "${call.request()}")
+
+        call?.enqueue(object: retrofit2.Callback<MyBModel> {
+            override fun onResponse(call: Call<MyBModel>, response: Response<MyBModel>) {
+                if(response.isSuccessful) {
+                    Log.d("mobileApp", "${response.body()}")
+                    //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
+                    //binding.retrofitRecyclerView.adapter = MyRetrofitAdapter(this, response.body()!!.body.items)
+                }
+            }
+
+            override fun onFailure(call: Call<MyBModel>, t: Throwable) {
                 Log.d("mobileApp", "${t.toString()}")
             }
         })
@@ -279,20 +301,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-  /*  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId === R.id.menu_auth){
-            val intent = Intent(this, AuthActivity::class.java)
-            if(_binding.headerName!!.text!!.equals("인증")){
-                intent.putExtra("data", "logout")
-            }
-            else{ //이메일, 구글계정
-                intent.putExtra("data", "login")
-            }
-            startActivity(intent)
-        }
-        return super.onOptionsItemSelected(item)
-    } */
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.item1 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 1")}
@@ -360,11 +368,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
 
 
-        /* val cameraPosition = CameraPosition(
-            LatLng(37.65178832823347, 127.01614801495204), //위치 지정
-            16.0 // 줌레벨 => 추가로 기울임 각도, 방향 설정 가능
-        )
-        naverMap.cameraPosition = cameraPosition  //최초위치 설정 */
+        // 다중 마커
+        val call: Call<MyAModel> = MyApplication.retroInterface3.getRetrofit3( // 통신 부분
+            "전국", //측정소이름
+            "1",
+            "700",
+            "json",
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "1.2"
+        ) //call 객체에 초기화
+        Log.d("mobileApp", "${call.request()}")
+
+        call?.enqueue(object: retrofit2.Callback<MyAModel> {
+            override fun onResponse(call: Call<MyAModel>, response: Response<MyAModel>) {
+                if(response.isSuccessful) { //지도에 마커 띄우는 코드 작성 부분
+                    Log.d("mobileApp", "${response.body()}")
+                    val responseBody = response.body()
+                    if (responseBody!=null) {
+                        val firstItem = responseBody.response.body.items[0].stationName
+                        val secondItem = responseBody.response.body.items[0].sidoName
+                        allOfStation(firstItem.toString() ,secondItem.toString())
+                    } else {
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<MyAModel>, t: Throwable) {
+                Log.d("mobileApp", "${t.toString()}")
+            }
+        })
 
         // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
         naverMap.addOnCameraChangeListener { reason, animated ->
