@@ -456,6 +456,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         //marker누르면 상세정보 페이지 띄우기
         marker.setOnClickListener {
+            val InfoStation = stationDust() //현재 측정소 이름(firstItem)을 가져옴.
+            val InfoAddress = marker.position //마커의 현재위치
+            val pm10value = ""
+            val pm25value = ""
+
+
             val intent = Intent(this@MainActivity, InfoActivity::class.java)
             startActivity(intent)
             true
