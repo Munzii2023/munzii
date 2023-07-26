@@ -119,13 +119,12 @@ class AlarmActivity : AppCompatActivity() {
 
             Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
 
-           showNotification()
-
             // MainActivity로 화면 전환을 위한 코드
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
 
         }
+
     }
 
     private fun saveNotificationSettings() {
@@ -146,6 +145,32 @@ class AlarmActivity : AppCompatActivity() {
         editor.putString("saved_good_status", selectedGoodStatus)
 
         editor.apply()
+
+        // AlarmManager를 사용하여 알림 예약
+        if (isNotificationEnabled) {
+            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this,AlarmActivity::class.java)
+            intent.action = "ACTION_SHOW_NOTIFICATION"
+            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+            // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+            calendar.set(Calendar.MINUTE, timePicker.minute)
+            val selectedTimeInMillis = calendar.timeInMillis
+
+            // 알림을 선택한 시간에 트리거하도록 알람 설정
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
+        } else {
+            // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
+            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, AlarmActivity::class.java)
+            intent.action = "ACTION_SHOW_NOTIFICATION"
+            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
+            pendingIntent?.let {
+                alarmManager.cancel(it)
+            }
+        }
     }
 
     private fun displaySavedTimeAndLocation() {
@@ -157,6 +182,7 @@ class AlarmActivity : AppCompatActivity() {
         Log.d("AlarmActivity", "저장된 시간: $savedTime, 저장된 위치: $savedLocation")
     }
 
+    /*
     private fun showNotification() {
         // 알림 채널 생성 (Android 8.0 이상에서 필요)
         createNotificationChannel()
@@ -165,14 +191,16 @@ class AlarmActivity : AppCompatActivity() {
         val time = "${timePicker.hour}:${timePicker.minute}"
         val location = locationEditText.text.toString()
 
+        // 알림 내용 설정
+        val contentText = "알림 내용: 시간 - $time, 위치 - $location"
+
         // 알림 생성
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("알림 제목")
-            .setContentText("알림 내용: 시간 - $time, 위치 - $location")
+            .setContentText(contentText) // 알림 내용 설정
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-
             .setAutoCancel(true)
 
         // 권한 체크
@@ -207,16 +235,16 @@ class AlarmActivity : AppCompatActivity() {
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
 
     }
-
+    */
     private fun createNotificationChannel() {
         // Android 8.0 이상에서 알림 채널을 생성해야 함
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "NotificationChannelName"
             val descriptionText = "Notification Channel Description"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_HIGH // 중요도 설정을 IMPORTANCE_HIGH로 변경
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
-                enableLights(true)
+                enableLights(ㅇtrue)
                 lightColor = Color.RED
                 enableVibration(true)
             }
