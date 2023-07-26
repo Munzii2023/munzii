@@ -168,33 +168,34 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
     }
 
-    private fun stationFineDust(stationName : String) { //미세먼지 API 불러오기
+    private fun stationFineDust(stationName: String) {
         val call: Call<MySModel> = MyApplication.retroInterface2.getRetrofit2(
-            stationName, //측정소이름
+            stationName,
             "month",
             "1",
             "100",
             "json",
             "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
             "1.4"
-        ) //call 객체에 초기화
-        Log.d("mobileApp", "${call.request()}")
+        )
 
-        call?.enqueue(object: retrofit2.Callback<MySModel> {
+        call?.enqueue(object : retrofit2.Callback<MySModel> {
             override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
-                if(response.isSuccessful) {
+                if (response.isSuccessful) {
                     val responseBody = response.body()
-                    if (responseBody!=null) {
-                        val Item = responseBody.response.body.items[0]?.pm10Value
-                        stationFineDust(Item.toString())
-                        Log.d("mobileApp2", "첫 번째 item의 pm10Value: ${Item}")
+                    if (responseBody != null) {
+                        val items = responseBody.response.body.items
+                        if (items.isNotEmpty()) {
+                            val Item = items[0]?.pm10Value
+                            Log.d("mobileApp2", "첫 번째 item의 pm10Value: $Item")
+                        } else {
+                            Log.d("mobileApp2", "items 리스트가 비어있습니다.")
+                        }
                     } else {
-                        Log.d("mobileApp2", "items 리스트가 비어있습니다.")
+                        Log.d("mobileApp2", "responseBody가 null 입니다.")
                     }
-
-                    Log.d("mobileApp2", "${response.body()}")
-                    //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
-                    //binding.retrofitRecyclerView.adapter = MyRetrofitAdapter(this, response.body()!!.body.items)
+                } else {
+                    Log.d("mobileApp2", "response.isSuccessful이 false 입니다.")
                 }
             }
 
@@ -203,6 +204,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
     }
+
 
 
     /*
