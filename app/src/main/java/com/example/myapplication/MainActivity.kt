@@ -1,6 +1,8 @@
 package com.example.myapplication
 
 import MYModel
+import MyAModel
+import MyBModel
 import MySModel
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -12,6 +14,7 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
@@ -27,8 +30,10 @@ import com.naver.maps.geometry.Tm128
 import com.naver.maps.geometry.Tm128.valueOf
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import kotlinx.coroutines.*
 import kr.hyosang.coordinate.*
 import retrofit2.Call
 import retrofit2.Response
@@ -50,7 +55,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var mLocationSource: FusedLocationSource
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var marker : Marker
-    private val mMarkerList: List<Marker> = ArrayList() //공공데이터에서 불러오는 미세먼지 마커들
+    private val mMarkerList = arrayOfNulls<Marker>(700) //공공데이터에서 불러오는 미세먼지 마커들
 
     //현재 TM 좌표
     private var tmX by Delegates.notNull<Double>()
@@ -68,7 +73,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.mainDrawer.setNavigationItemSelectedListener(this)
 
         binding.navBtn.setOnClickListener {
-               binding.drawer.openDrawer(GravityCompat.START)
+            binding.drawer.openDrawer(GravityCompat.START)
         }
 
         binding.btnDeliveryVehicle.setOnClickListener {
@@ -92,17 +97,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                 // 검색 버튼 누를 때 호출
                 query?.let {
-                    val latLng = getLatLngFromAddress(it)
-                    if (latLng != null) {
-                        // 마커 위치 변경
-                        marker.position = latLng
-                        naverMap.moveCamera(CameraUpdate.scrollTo(latLng))
+                    try {
+                        val latLng = getLatLngFromAddress(it)
+                        if (latLng != null) {
+                            // 마커 위치 변경
+                            marker.position = latLng
+                            naverMap.moveCamera(CameraUpdate.scrollTo(latLng))
 
-                        // 주소 가져오기
-                        val address = getAddress(latLng.latitude, latLng.longitude)
-                        Log.d("mobileApp", address)
-                    } else {
-                        // 주소를 찾을 수 없는 경우 처리
+                            // 주소 가져오기
+                            val address = getAddress(latLng.latitude, latLng.longitude)
+                            Log.d("mobileApp", address)
+                        } else {
+                            // 주소를 찾을 수 없는 경우 처리
+                        }
+                    }
+                    catch (e: IllegalArgumentException) {
+                        // Handle the error here, e.g., show a Toast or display an error message
+                        e.message?.let { it1 -> Log.e("mobileApp", it1) }
                     }
                 }
                 return true
@@ -113,14 +124,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 return true
             }
         })
-
-
-
-
     }
-    private fun getSidoDust(addr : String) {
-        stationFineDust(addr)
-    }
+
 
     //위도경도 좌표계 => tm좌표 변환 함수
     private fun getTm(){
@@ -131,6 +136,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         tmX = tmPt.x
         tmY = tmPt.y
     }
+
+
 
     private fun stationDust() { //측정소 API 불러오는 코드
         //var keyword = binding.edtProduct.text.toString()
@@ -151,9 +158,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (responseBody!=null) {
                         val firstItem = responseBody.response.body.items[0].stationName
                         stationFineDust(firstItem.toString())
-                        Log.d("mobileApp", "첫 번째 item의 stationName: ${firstItem.toString()}")
+                        Log.d("stationDust", "첫 번째 item의 stationName: ${firstItem.toString()}")
                     } else {
-                        Log.d("mobileApp", "items 리스트가 비어있습니다.")
+                        Log.d("stationDust", "items 리스트가 비어있습니다.")
                     }
 
                     //Log.d("mobileApp", "${response.body()?.body?.items?:emptyList()}")
@@ -195,52 +202,45 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
     }
 
+    private suspend fun fetchStationCoordinates(stationName: String, sidoName: String): LatLng? { //미세먼지->측정소 API 불러오기
+        val call: Call<MyBModel> = MyApplication.retroInterface4.getRetrofit4(
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "json",
+            "1",
+            "1",
+            sidoName,
+            stationName
+        )
 
-    /*
-    private fun fetchFineDust(sidoName: String, searchCondition: String) {
-    val retrofit = Retrofit.Builder()
-        .baseUrl(DustAPI.BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    val dustApi = retrofit.create(DustAPI::class.java)
-    dustApi.getFineDustbySido(sidoName, searchCondition).enqueue(object : Callback<FineDustResult> {
-        override fun onResponse(call: Call<FineDustResult>, response: Response<FineDustResult>) {
-            // 200은 성공을 의미합니다.
-            if (response.code() == 200) {
-                mResult = response.body()
-                setDustOnView()
-            }
-        }
-
-    override fun onFailure(call: Call<FineDustResult>, t: Throwable) {
-
-       }
-        })
-    }
-
-    //API에서 가져온 가게 좌표마다 marker 띄움
-    private fun updateMapMarkers(result: StoreSaleResult) {
-        resetMarkerList()
-        if (result.stores != null && result.stores.size > 0) {
-            for (mask in result.stores) {
-                val marker = Marker()
-                marker.tag = mask
-                marker.position = LatLng(mask.lat, mask.lng)
-
-                when (mask.remain_stat.toLowerCase()) {
-                    "plenty" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_green)
-                    "some" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_yellow)
-                    "few" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_red)
-                    else -> marker.icon = OverlayImage.fromResource(R.drawable.marker_gray)
+        try { // api에서 반환해주는 dmx, dmy(위도와 경도) 값을 이용해 측정소 위치 return
+            val response = call.execute()
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null && body.response.body.items.isNotEmpty()) {
+                    val item = body.response.body.items[0]
+                    val lat = item.dmX?.toDouble()
+                    val lng = item.dmY?.toDouble()
+                    return lat?.let { LatLng(it, lng ?: 0.0) }
                 }
-                marker.anchor = PointF(0.5f, 1.0f)
-                marker.map = mnaverMap
-                marker.setOnClickListener(this)
-                mMarkerList.add(marker)
             }
+        } catch (e: Exception) {
+            Log.d("mobileApp", e.toString())
         }
+
+        return null
     }
-    */
+
+    private fun allOfStation(stationName: String, sidoName: String): LatLng? = runBlocking {// 측정소 위치값 return 받을 때 응답속도가 느려서 자꾸 null이 반환되는 문제가 생겨서 동기화 함수 추가 작성함
+        var coord: LatLng? = null
+
+        val deferredCoord = async(Dispatchers.IO) {
+            fetchStationCoordinates(stationName, sidoName)
+        }
+
+        coord = deferredCoord.await()
+
+        return@runBlocking coord
+    }
 
     private fun updateNavigationHeader() {
         val headerView = binding.mainDrawer.getHeaderView(0)
@@ -279,20 +279,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     }
 
-  /*  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if(item.itemId === R.id.menu_auth){
-            val intent = Intent(this, AuthActivity::class.java)
-            if(_binding.headerName!!.text!!.equals("인증")){
-                intent.putExtra("data", "logout")
-            }
-            else{ //이메일, 구글계정
-                intent.putExtra("data", "login")
-            }
-            startActivity(intent)
-        }
-        return super.onOptionsItemSelected(item)
-    } */
-
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.item1 -> {Log.d("mobileApp", "네비게이션 뷰 메뉴 1")}
@@ -319,21 +305,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    /*private fun setMark(marker: Marker, lat: Double, lng: Double, resourceID: Int) { //마커 띄우기
-        // 원근감 표시
-        marker.isIconPerspectiveEnabled = true
-        // 아이콘 지정
-        marker.icon = OverlayImage.fromResource(resourceID)
-        // 마커의 투명도
-        marker.alpha = 0.8f
-        // 마커 위치
-        marker.position = LatLng(lat, lng)
-        // 마커 우선순위
-        marker.zIndex = 10
-        // 마커 표시
-        marker.map = naverMap
-    }*/
-
     override fun onMapReady(naverMap: NaverMap) { //네이버 지도의 이벤트를 처리하는 콜백함수
 
         // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
@@ -354,17 +325,59 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         naverMap.uiSettings.isLocationButtonEnabled = true
         // 위치를 추적하면서 카메라도 따라 움직인다.
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
-        //stationDust()
 
         // 권한확인. 결과는 onRequestPermissionsResult 콜백 매서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
 
+        // 다중 마커
+        val call: Call<MyAModel> = MyApplication.retroInterface3.getRetrofit3( // 통신 부분
+            "전국", //측정소이름
+            "1",
+            "700",
+            "json",
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "1.2"
+        ) //call 객체에 초기화
+        Log.d("mobileApp", "${call.request()}")
 
-        /* val cameraPosition = CameraPosition(
-            LatLng(37.65178832823347, 127.01614801495204), //위치 지정
-            16.0 // 줌레벨 => 추가로 기울임 각도, 방향 설정 가능
-        )
-        naverMap.cameraPosition = cameraPosition  //최초위치 설정 */
+        call?.enqueue(object: retrofit2.Callback<MyAModel> {
+            override fun onResponse(call: Call<MyAModel>, response: Response<MyAModel>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    if (responseBody != null) {
+                        Log.d("numofitems", responseBody.response.body.items.indices.toString())
+                        for (i in responseBody.response.body.items.indices){
+                            val stationName = responseBody.response.body.items[i].stationName
+                            val sidoName = responseBody.response.body.items[i].sidoName
+                            mMarkerList[i] = Marker()
+                            val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
+                            if (coord != null) {
+                                // 마커 찍기
+                                mMarkerList[i]?.position = coord
+                                mMarkerList[i]?.map = naverMap
+                            }
+                            /* 마커에 클릭리스너 주기!!
+                            val finalI = i
+                            mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
+                                override fun onClick(overlay: Overlay): Boolean {
+                                    Toast.makeText(application, "마커$finalI 클릭", Toast.LENGTH_SHORT).show()
+                                    return false
+                                }
+                            })*/
+                        }
+                    } else {
+                        // Handle the case when the response body is null
+                    }
+                } else {
+                    // Handle the case when the response is not successful
+                }
+            }
+
+            override fun onFailure(call: Call<MyAModel>, t: Throwable) {
+                Log.e("mobileApp", "Retrofit onFailure: ${t.toString()}")
+                // Handle the failure, e.g., show a Toast or display an error message
+            }
+        })
 
         // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
         naverMap.addOnCameraChangeListener { reason, animated ->
@@ -438,16 +451,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             lat = location.latitude
             lon = location.longitude
             stationDust()
-            //setMark(marker, lat, lon, R.drawable.baseline_place_24)
-            //Log.d("mobileApp", getAddress(lat, lon))
         }
 
-    }
-
-    private fun getSido(address : String) :String {
-        val words = address.split("\\s".toRegex()).toTypedArray()
-        Log.d("mobileApp", words[2]) //현위치 구 불러오기
-        return words[2]
+        //marker누르면 상세정보 페이지 띄우기
+        marker.setOnClickListener {
+            val intent = Intent(this@MainActivity, InfoActivity::class.java)
+            startActivity(intent)
+            true
+        }
     }
 
     // 좌표 -> 주소 변환
@@ -474,15 +485,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     // 주소 -> 좌표 변환
-    private fun getLatLngFromAddress(address: String): LatLng? {
+    private fun getLatLngFromAddress(address: String): LatLng {
         val geocoder = Geocoder(this, Locale.KOREA)
+        //val addressList = geocoder.getFromLocationName(address, 1)
         val addressList = geocoder.getFromLocationName(address, 1)
-        return if (addressList != null && addressList.isNotEmpty()) {
+
+        if (addressList != null && addressList.isNotEmpty()) {
             val latitude = addressList[0].latitude
             val longitude = addressList[0].longitude
-            LatLng(latitude, longitude)
+            return LatLng(latitude, longitude)
         } else {
-            null
+            throw IllegalArgumentException("Invalid address or unable to find location for the given address: $address")
         }
     }
 
