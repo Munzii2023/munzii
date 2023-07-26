@@ -1,6 +1,6 @@
 package com.example.myapplication
 
-import MYModel
+import MyModel
 import MySModel
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun stationDust() { //측정소 API 불러오는 코드
         //var keyword = binding.edtProduct.text.toString()
         getTm()
-        val call: Call<MYModel> = MyApplication.retroInterface.getRetrofit(
+        val call: Call<MyModel> = MyApplication.retroInterface.getRetrofit(
             tmX.toString(),
             tmY.toString(),
             "json",
@@ -144,8 +144,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
 
-        call?.enqueue(object: retrofit2.Callback<MYModel> {
-            override fun onResponse(call: Call<MYModel>, response: Response<MYModel>) {
+        call?.enqueue(object: retrofit2.Callback<MyModel> {
+            override fun onResponse(call: Call<MyModel>, response: Response<MyModel>) {
                 if(response.isSuccessful) {
                     val responseBody = response.body()
                     if (responseBody!=null) {
@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
 
-            override fun onFailure(call: Call<MYModel>, t: Throwable) {
+            override fun onFailure(call: Call<MyModel>, t: Throwable) {
                 Log.d("mobileApp", "${t.toString()}")
             }
         })
@@ -176,9 +176,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "1",
             "100",
             "json",
-            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg=="
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "1.4"
         ) //call 객체에 초기화
-        Log.d("mobileApp", "${call.request()}")
+        Log.d("mobileApp2", "${call.request()}")
 
         call?.enqueue(object: retrofit2.Callback<MySModel> {
             override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {

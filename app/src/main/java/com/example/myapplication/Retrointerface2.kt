@@ -14,6 +14,7 @@ interface Retrointerface2 { //측정소정보
         @Query("pageNo") pageNo: String?,
         @Query("numOfRows") numOfRows: String?,
         @Query("returnType") returnType: String?,
-        @Query("serviceKey") serviceKey: String?
+        @Query("serviceKey") serviceKey: String?,
+        @Query("ver") ver:String?
     ): Call<MySModel>
 }
