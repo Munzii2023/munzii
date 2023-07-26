@@ -1,6 +1,6 @@
 package com.example.myapplication
 
-import MYModel
+import MyModel
 import MySModel
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -16,20 +16,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.databinding.ActivityAuthBinding
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.geometry.Tm128
-import com.naver.maps.geometry.Tm128.valueOf
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
-import kr.hyosang.coordinate.*
+import kr.hyosang.coordinate.CoordPoint
+import kr.hyosang.coordinate.TransCoord
 import retrofit2.Call
 import retrofit2.Response
 import java.io.IOException
@@ -112,8 +111,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // 검색창에서 글자가 변경이 일어날 때마다 호출
                 return true
             }
-        })
 
+    })
 
 
 
@@ -135,7 +134,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private fun stationDust() { //측정소 API 불러오는 코드
         //var keyword = binding.edtProduct.text.toString()
         getTm()
-        val call: Call<MYModel> = MyApplication.retroInterface.getRetrofit(
+        val call: Call<MyModel> = MyApplication.retroInterface.getRetrofit(
             tmX.toString(),
             tmY.toString(),
             "json",
@@ -144,16 +143,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
 
-        call?.enqueue(object: retrofit2.Callback<MYModel> {
-            override fun onResponse(call: Call<MYModel>, response: Response<MYModel>) {
+        call?.enqueue(object: retrofit2.Callback<MyModel> {
+            override fun onResponse(call: Call<MyModel>, response: Response<MyModel>) {
                 if(response.isSuccessful) {
                     val responseBody = response.body()
                     if (responseBody!=null) {
                         val firstItem = responseBody.response.body.items[0].stationName
                         stationFineDust(firstItem.toString())
-                        Log.d("mobileApp", "첫 번째 item의 stationName: ${firstItem.toString()}")
+                        Log.d("mobileApp1", "첫 번째 item의 stationName: ${firstItem.toString()}")
                     } else {
-                        Log.d("mobileApp", "items 리스트가 비어있습니다.")
+                        Log.d("mobileApp1", "items 리스트가 비어있습니다.")
                     }
 
                     //Log.d("mobileApp", "${response.body()?.body?.items?:emptyList()}")
@@ -163,7 +162,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
 
-            override fun onFailure(call: Call<MYModel>, t: Throwable) {
+            override fun onFailure(call: Call<MyModel>, t: Throwable) {
                 Log.d("mobileApp", "${t.toString()}")
             }
         })
@@ -176,14 +175,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "1",
             "100",
             "json",
-            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg=="
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "1.4"
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
 
         call?.enqueue(object: retrofit2.Callback<MySModel> {
             override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
                 if(response.isSuccessful) {
-                    Log.d("mobileApp", "${response.body()}")
+                    val responseBody = response.body()
+                    if (responseBody!=null) {
+                        val Item = responseBody.response.body.items[0]?.pm10Value
+                        stationFineDust(Item.toString())
+                        Log.d("mobileApp2", "첫 번째 item의 pm10Value: ${Item}")
+                    } else {
+                        Log.d("mobileApp2", "items 리스트가 비어있습니다.")
+                    }
+
+                    Log.d("mobileApp2", "${response.body()}")
                     //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
                     //binding.retrofitRecyclerView.adapter = MyRetrofitAdapter(this, response.body()!!.body.items)
                 }
@@ -366,6 +375,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
         naverMap.cameraPosition = cameraPosition  //최초위치 설정 */
 
+        //InfoActivity로 이동
+
         // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
         naverMap.addOnCameraChangeListener { reason, animated ->
             Log.i("NaverMap", "카메라 변경 - reson: $reason, animated: $animated")
@@ -431,6 +442,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         naverMap.cameraPosition.target.latitude,
                         naverMap.cameraPosition.target.longitude
                     )
+
                 }
             }
 
@@ -442,6 +454,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //Log.d("mobileApp", getAddress(lat, lon))
         }
 
+        //marker누르면 상세정보 페이지 띄우기
+        marker.setOnClickListener {
+            val intent = Intent(this@MainActivity, InfoActivity::class.java)
+            startActivity(intent)
+            true
+        }
     }
 
     private fun getSido(address : String) :String {
