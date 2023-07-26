@@ -45,7 +45,8 @@
             <TimePicker
                 android:id="@+id/timePicker"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:timePickerMode="spinner"/>
 
             <TextView
                 android:layout_width="wrap_content"

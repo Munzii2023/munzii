@@ -1,4 +1,9 @@
-data class MYModel (val response: Response)
+
+/*
+MyModel : 근처 측정소 api 연결 모델
+MySModel : 미세먼지 정보 연결 모델
+ */
+data class MyModel (val response: Response)
 
 data class Response (
     val body: Body,
@@ -52,6 +57,3 @@ data class SHeader (
     val resultMsg: String,
     val resultCode: String
 )
-
-
-data class MyStationItem(val item : ModelStation)

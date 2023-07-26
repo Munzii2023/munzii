@@ -1,6 +1,6 @@
 package com.example.myapplication
 
-import MYModel
+import MyModel
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -14,5 +14,5 @@ interface RetroInterface { //대기오염정보
         @Query("returnType") returnType: String?,
         @Query("serviceKey") serviceKey: String?,
         @Query("ver") ver: String?
-    ): Call<MYModel>
+    ): Call<MyModel>
 }
