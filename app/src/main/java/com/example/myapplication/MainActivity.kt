@@ -16,20 +16,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.databinding.ActivityAuthBinding
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.geometry.Tm128
-import com.naver.maps.geometry.Tm128.valueOf
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
-import kr.hyosang.coordinate.*
+import kr.hyosang.coordinate.CoordPoint
+import kr.hyosang.coordinate.TransCoord
 import retrofit2.Call
 import retrofit2.Response
 import java.io.IOException
@@ -112,8 +111,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // 검색창에서 글자가 변경이 일어날 때마다 호출
                 return true
             }
-        })
 
+    })
 
 
 
@@ -366,6 +365,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         )
         naverMap.cameraPosition = cameraPosition  //최초위치 설정 */
 
+        //InfoActivity로 이동
+
         // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
         naverMap.addOnCameraChangeListener { reason, animated ->
             Log.i("NaverMap", "카메라 변경 - reson: $reason, animated: $animated")
@@ -431,6 +432,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         naverMap.cameraPosition.target.latitude,
                         naverMap.cameraPosition.target.longitude
                     )
+
                 }
             }
 
@@ -442,6 +444,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             //Log.d("mobileApp", getAddress(lat, lon))
         }
 
+        //marker누르면 상세정보 페이지 띄우기
+        marker.setOnClickListener {
+            val intent = Intent(this@MainActivity, InfoActivity::class.java)
+            startActivity(intent)
+            true
+        }
     }
 
     private fun getSido(address : String) :String {
