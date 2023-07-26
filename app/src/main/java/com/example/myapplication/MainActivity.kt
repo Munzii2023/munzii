@@ -150,9 +150,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (responseBody!=null) {
                         val firstItem = responseBody.response.body.items[0].stationName
                         stationFineDust(firstItem.toString())
-                        Log.d("mobileApp", "첫 번째 item의 stationName: ${firstItem.toString()}")
+                        Log.d("mobileApp1", "첫 번째 item의 stationName: ${firstItem.toString()}")
                     } else {
-                        Log.d("mobileApp", "items 리스트가 비어있습니다.")
+                        Log.d("mobileApp1", "items 리스트가 비어있습니다.")
                     }
 
                     //Log.d("mobileApp", "${response.body()?.body?.items?:emptyList()}")
@@ -178,12 +178,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
             "1.4"
         ) //call 객체에 초기화
-        Log.d("mobileApp2", "${call.request()}")
+        Log.d("mobileApp", "${call.request()}")
 
         call?.enqueue(object: retrofit2.Callback<MySModel> {
             override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
                 if(response.isSuccessful) {
-                    Log.d("mobileApp", "${response.body()}")
+                    val responseBody = response.body()
+                    if (responseBody!=null) {
+                        val Item = responseBody.response.body.items[0]?.pm10Value
+                        stationFineDust(Item.toString())
+                        Log.d("mobileApp2", "첫 번째 item의 pm10Value: ${Item}")
+                    } else {
+                        Log.d("mobileApp2", "items 리스트가 비어있습니다.")
+                    }
+
+                    Log.d("mobileApp2", "${response.body()}")
                     //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
                     //binding.retrofitRecyclerView.adapter = MyRetrofitAdapter(this, response.body()!!.body.items)
                 }

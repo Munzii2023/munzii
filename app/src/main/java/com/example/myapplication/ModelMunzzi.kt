@@ -30,13 +30,37 @@ data class Header (
 )
 
 data class ModelStation(
+    var pm25Grade1h: String? = null,
+    var pm10Value24: String? = null,
+    var so2Value: String? = null,
+    var pm10Grade1h: String? = null,
+    var o3Grade: String? = null,
+    var pm10Value: String? = null, //미세먼지 10농도
+    var pm25Flag: String? = null,
+    var khaiGrade: String? = null,
+    var pm25Value: String? = null,//미세먼지 2.5 농도
+    var no2Flag: String? = null,
+    var mangName: String? = null,
+    var stationName: String? = null,
+    var no2Value: String? = null,
+    var so2Grade: String? = null,
+    var stationCode: String? = null,
+    var coFlag: String? = null,
+    var khaiValue: String? = null,
+    var coValue: String? = null,
+    var pm10Flag: String? = null,
+    var no2Grade: String? = null,
+    var pm25Value24: String? = null,
+    var o3Flag: String? = null,
+    var pm25Grade: String? = null,
+    var so2Flag: String? = null,
+    var coGrade: String? = null,
+    var dataTime: String? = null,
+    var pm10Grade: String? = null,
+    var o3Value: String? = null,
     var numOfRows : String? = null,
     var pageNo : String? = null,
-    var totalCount : String? = null,
-    var dataTime : String ?= null,
-    var stationName : String ?= null,
-    var pm10Value : String ?= null, //미세먼지 10농도
-    var pm25Value : String ?= null //미세먼지 2.5 농도
+    var totalCount : String? = null
 )
 
 data class MySModel (val response: SResponse)
@@ -48,7 +72,7 @@ data class SResponse (
 
 data class SBody (
     val totalCount: Long,
-    val items: List<Map<String, String?>>,
+    val items: List<ModelStation?>,
     val pageNo: Long,
     val numOfRows: Long
 )
