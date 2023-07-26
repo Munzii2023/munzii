@@ -38,12 +38,34 @@ class MyApplication : MultiDexApplication() {
         val retrofit2 : Retrofit
             get() = Retrofit.Builder()
                 .baseUrl("http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/")
-                .addConverterFactory(GsonConverterFactory.create()) // Json데이터를 사용자가 정의한 Java 객채로 변환해주는 라이브러리
+                .addConverterFactory(GsonConverterFactory.create())
                 .build()
         init {
             retroInterface2 = retrofit2.create(Retrointerface2::class.java)
         }
 
+        // 미먼 시도 이름 데이터
+        var retroInterface3 : Retrointerface3
+        val retrofit3 : Retrofit
+            get() = Retrofit.Builder()
+                .baseUrl("http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+        init {
+            retroInterface3 = retrofit3.create(Retrointerface3::class.java)
+        }
+
+        // 측정소 측정소 이름 데이터
+        // 미먼 시도 이름 데이터
+        var retroInterface4 : Retrointerface4
+        val retrofit4 : Retrofit
+            get() = Retrofit.Builder()
+                .baseUrl("https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+        init {
+            retroInterface4 = retrofit4.create(Retrointerface4::class.java)
+        }
 
         fun checkAuth(): Boolean {
             val currentUser = auth.currentUser

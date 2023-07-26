@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="munzii_beige">#FFF4F2E5</color>
+    <color name="munzii_blue">#FF6A8FD9</color>
+    <color name="munzii_green">#FF8DA658</color>
+    <color name="munzii_yellow">#FFD3A353</color>
+    <color name="munzii_red">#FFBF544B</color>
+
 </resources>
