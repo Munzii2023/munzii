@@ -130,6 +130,8 @@ class AlarmActivity : AppCompatActivity() {
         if (intent?.action == "ACTION_SHOW_NOTIFICATION") {
             // 알림 작업을 여기서 처리하세요 (showNotification() 메서드 호출)
             showNotification()
+            // 액티비티를 즉시 종료하여 표시되지 않도록 합니다
+            finish()
         }
     }
 
@@ -138,6 +140,8 @@ class AlarmActivity : AppCompatActivity() {
         val isNotificationEnabled = notificationSwitch.isChecked
         val time = "${timePicker.hour}:${timePicker.minute}"
         val location = locationEditText.text.toString()
+        Log.d("AlarmActivity", "SharedPreferences에 저장된 값은 시간은 $time 입니다.")
+
         val selectedBadStatus =
             findViewById<RadioButton>(notificationBadStatusRadioGroup.checkedRadioButtonId)?.text?.toString() ?: ""
         val selectedGoodStatus =
@@ -165,6 +169,7 @@ class AlarmActivity : AppCompatActivity() {
             calendar.set(Calendar.MINUTE, timePicker.minute)
             calendar.set(Calendar.SECOND, 0) // 초를 0으로 설정하여 정각에 트리거되도록 함
             val selectedTimeInMillis = calendar.timeInMillis
+            Log.d("AlarmActivity", "밀리초로 변환한 값은 $selectedTimeInMillis 입니다.")
 
             // 알림을 선택한 시간에 트리거하도록 알람 설정
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
