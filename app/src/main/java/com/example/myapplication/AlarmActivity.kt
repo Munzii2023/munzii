@@ -119,12 +119,18 @@ class AlarmActivity : AppCompatActivity() {
 
             Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
 
+
             // MainActivity로 화면 전환을 위한 코드
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
 
         }
 
+        // 액티비티가 알람에 의해 트리거되었는지 확인합니다.
+        if (intent?.action == "ACTION_SHOW_NOTIFICATION") {
+            // 알림 작업을 여기서 처리하세요 (showNotification() 메서드 호출)
+            showNotification()
+        }
     }
 
     private fun saveNotificationSettings() {
@@ -146,17 +152,18 @@ class AlarmActivity : AppCompatActivity() {
 
         editor.apply()
 
-        // AlarmManager를 사용하여 알림 예약
+        // AlarmManager를 사용하여 사용자가 설정한 시간에 알림 예약
         if (isNotificationEnabled) {
             val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-            val intent = Intent(this,AlarmActivity::class.java)
+            val intent = Intent(this, AlarmActivity::class.java)
             intent.action = "ACTION_SHOW_NOTIFICATION"
-            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
             // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
             val calendar = Calendar.getInstance()
             calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
             calendar.set(Calendar.MINUTE, timePicker.minute)
+            calendar.set(Calendar.SECOND, 0) // 초를 0으로 설정하여 정각에 트리거되도록 함
             val selectedTimeInMillis = calendar.timeInMillis
 
             // 알림을 선택한 시간에 트리거하도록 알람 설정
@@ -166,7 +173,7 @@ class AlarmActivity : AppCompatActivity() {
             val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
             val intent = Intent(this, AlarmActivity::class.java)
             intent.action = "ACTION_SHOW_NOTIFICATION"
-            val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
+            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_NO_CREATE)
             pendingIntent?.let {
                 alarmManager.cancel(it)
             }
@@ -182,7 +189,6 @@ class AlarmActivity : AppCompatActivity() {
         Log.d("AlarmActivity", "저장된 시간: $savedTime, 저장된 위치: $savedLocation")
     }
 
-    /*
     private fun showNotification() {
         // 알림 채널 생성 (Android 8.0 이상에서 필요)
         createNotificationChannel()
@@ -190,6 +196,7 @@ class AlarmActivity : AppCompatActivity() {
         // 사용자가 설정한 시간과 위치 정보 가져오기
         val time = "${timePicker.hour}:${timePicker.minute}"
         val location = locationEditText.text.toString()
+        Log.d("AlarmActivity", "사용자가 설정한 시간은 $time 이고, 설정한 위치는 $location 입니다.")
 
         // 알림 내용 설정
         val contentText = "알림 내용: 시간 - $time, 위치 - $location"
@@ -235,7 +242,9 @@ class AlarmActivity : AppCompatActivity() {
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
 
     }
-    */
+
+
+
     private fun createNotificationChannel() {
         // Android 8.0 이상에서 알림 채널을 생성해야 함
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -244,7 +253,7 @@ class AlarmActivity : AppCompatActivity() {
             val importance = NotificationManager.IMPORTANCE_HIGH // 중요도 설정을 IMPORTANCE_HIGH로 변경
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
-                enableLights(ㅇtrue)
+                enableLights(true)
                 lightColor = Color.RED
                 enableVibration(true)
             }
