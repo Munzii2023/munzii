@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MapInfoActivity"
+    android:gravity="center_vertical"
+    android:layout_margin="15dp"
+    android:background="@color/white"
+    android:id="@+id/map_info_layout">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/smile"
+            android:layout_gravity="center"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/address_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="주소"
+                android:textSize="16dp" />
+
+            <TextView
+                android:id="@+id/map_info_addr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="미세먼지 수치"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/map_info_hour"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="초미세먼지 수치"
+                android:textSize="12dp" />
+
+            <TextView
+                android:id="@+id/map_info_break"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="측정소"
+                android:textSize="12dp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</LinearLayout>
