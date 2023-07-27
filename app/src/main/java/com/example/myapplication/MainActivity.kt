@@ -14,6 +14,7 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -463,9 +464,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             val intent = Intent(this@MainActivity, InfoActivity::class.java)
             startActivity(intent)
+
             true
         }
+
+
+
+        // MainActivity 화면의 임의의 곳을 클릭하면 InfoActivity를 종료하도록 처리
     }
+
+
 
     // 좌표 -> 주소 변환
     private fun getAddress(lat: Double, lng: Double): String {

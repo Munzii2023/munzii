@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -7,6 +8,7 @@ import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.Display
 import android.view.Gravity
+import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
 import kotlin.math.round
 
@@ -18,6 +20,13 @@ class InfoActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_info)
+    }
+
+    //다른 화면을 누르면 InfoActivity 종료
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        setResult(Activity.RESULT_CANCELED)
+        finish()
+        return true
     }
 
     override fun onResume() {
