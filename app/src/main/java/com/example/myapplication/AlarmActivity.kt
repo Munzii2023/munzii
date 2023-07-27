@@ -119,12 +119,19 @@ class AlarmActivity : AppCompatActivity() {
 
             Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
 
-           showNotification()
 
             // MainActivity로 화면 전환을 위한 코드
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
 
+        }
+
+        // 액티비티가 알람에 의해 트리거되었는지 확인합니다.
+        if (intent?.action == "ACTION_SHOW_NOTIFICATION") {
+            // 알림 작업을 여기서 처리하세요 (showNotification() 메서드 호출)
+            showNotification()
+            // 액티비티를 즉시 종료하여 표시되지 않도록 합니다
+            finish()
         }
     }
 
@@ -133,6 +140,8 @@ class AlarmActivity : AppCompatActivity() {
         val isNotificationEnabled = notificationSwitch.isChecked
         val time = "${timePicker.hour}:${timePicker.minute}"
         val location = locationEditText.text.toString()
+        Log.d("AlarmActivity", "SharedPreferences에 저장된 값은 시간은 $time 입니다.")
+
         val selectedBadStatus =
             findViewById<RadioButton>(notificationBadStatusRadioGroup.checkedRadioButtonId)?.text?.toString() ?: ""
         val selectedGoodStatus =
@@ -146,6 +155,34 @@ class AlarmActivity : AppCompatActivity() {
         editor.putString("saved_good_status", selectedGoodStatus)
 
         editor.apply()
+
+        // AlarmManager를 사용하여 사용자가 설정한 시간에 알림 예약
+        if (isNotificationEnabled) {
+            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, AlarmActivity::class.java)
+            intent.action = "ACTION_SHOW_NOTIFICATION"
+            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+            // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+            calendar.set(Calendar.MINUTE, timePicker.minute)
+            calendar.set(Calendar.SECOND, 0) // 초를 0으로 설정하여 정각에 트리거되도록 함
+            val selectedTimeInMillis = calendar.timeInMillis
+            Log.d("AlarmActivity", "밀리초로 변환한 값은 $selectedTimeInMillis 입니다.")
+
+            // 알림을 선택한 시간에 트리거하도록 알람 설정
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
+        } else {
+            // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
+            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, AlarmActivity::class.java)
+            intent.action = "ACTION_SHOW_NOTIFICATION"
+            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_NO_CREATE)
+            pendingIntent?.let {
+                alarmManager.cancel(it)
+            }
+        }
     }
 
     private fun displaySavedTimeAndLocation() {
@@ -164,15 +201,18 @@ class AlarmActivity : AppCompatActivity() {
         // 사용자가 설정한 시간과 위치 정보 가져오기
         val time = "${timePicker.hour}:${timePicker.minute}"
         val location = locationEditText.text.toString()
+        Log.d("AlarmActivity", "사용자가 설정한 시간은 $time 이고, 설정한 위치는 $location 입니다.")
+
+        // 알림 내용 설정
+        val contentText = "알림 내용: 시간 - $time, 위치 - $location"
 
         // 알림 생성
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("알림 제목")
-            .setContentText("알림 내용: 시간 - $time, 위치 - $location")
+            .setContentText(contentText) // 알림 내용 설정
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-
             .setAutoCancel(true)
 
         // 권한 체크
@@ -208,12 +248,14 @@ class AlarmActivity : AppCompatActivity() {
 
     }
 
+
+
     private fun createNotificationChannel() {
         // Android 8.0 이상에서 알림 채널을 생성해야 함
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "NotificationChannelName"
             val descriptionText = "Notification Channel Description"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_HIGH // 중요도 설정을 IMPORTANCE_HIGH로 변경
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
                 enableLights(true)

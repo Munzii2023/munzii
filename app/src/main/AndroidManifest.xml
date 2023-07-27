@@ -9,6 +9,7 @@
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
@@ -36,9 +37,6 @@
             android:exported="true" />
         <activity
             android:name=".AuthActivity"
-            android:exported="false" />
-        <activity
-            android:name=".AlarmActivity"
             android:exported="false" />
         <activity
             android:name=".SplahActivity"
