@@ -458,7 +458,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         marker.setOnClickListener {
             val InfoStation = stationDust() //현재 측정소 이름(firstItem)을 가져옴.
             val InfoAddress = marker.position //마커의 현재위치
-            val pm10value = ""
+            val pm10value = stationFineDust(InfoStation)
             val pm25value = ""
 
 
