@@ -350,12 +350,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             val stationName = responseBody.response.body.items[i].stationName
                             val sidoName = responseBody.response.body.items[i].sidoName
                             mMarkerList[i] = Marker()
-                            val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
-                            if (coord != null) {
-                                // 마커 찍기
-                                mMarkerList[i]?.position = coord
-                                mMarkerList[i]?.map = naverMap
-                            }
+//                            val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!! -> 주석했씁니다~
+//                            if (coord != null) {
+//                                // 마커 찍기
+//                                mMarkerList[i]?.position = coord
+//                                mMarkerList[i]?.map = naverMap
+//                            }
                             /* 마커에 클릭리스너 주기!!
                             val finalI = i
                             mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
