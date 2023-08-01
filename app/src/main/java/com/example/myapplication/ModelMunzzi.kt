@@ -26,10 +26,10 @@ data class ModelStation(
     var so2Value: String? = null,
     var pm10Grade1h: String? = null,
     var o3Grade: String? = null,
-    var pm10Value: String? = null, //미세먼지 10농도
+    var pm10Value: String? = null,
     var pm25Flag: String? = null,
     var khaiGrade: String? = null,
-    var pm25Value: String? = null,//미세먼지 2.5 농도
+    var pm25Value: String? = null,
     var no2Flag: String? = null,
     var mangName: String? = null,
     var stationName: String? = null,
@@ -49,10 +49,14 @@ data class ModelStation(
     var dataTime: String? = null,
     var pm10Grade: String? = null,
     var o3Value: String? = null,
-    var numOfRows : String? = null,
-    var pageNo : String? = null,
-    var totalCount : String? = null
+    var numOfRows: String? = null,
+    var pageNo: String? = null,
+    var totalCount: String? = null,
+    var tmX: Double,
+    var tmY: Double
 )
+
+
 
 
 data class MySModel (val response: SResponse) // 미세먼지 - 측정소 이름

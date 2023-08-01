@@ -57,9 +57,6 @@ class InfoActivity : AppCompatActivity() {
 
         // 리소스 ID를 사용하여 이미지뷰의 이미지를 변경
         imageView.setImageResource(imageResId)
-
-
-
     }
 
     //다른 화면을 누르면 InfoActivity 종료
