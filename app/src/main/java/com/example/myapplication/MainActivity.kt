@@ -14,32 +14,31 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.widget.Toast
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.databinding.ActivityInfoBinding
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.navigation.NavigationView
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.geometry.Tm128
-import com.naver.maps.geometry.Tm128.valueOf
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import kotlinx.coroutines.*
-import kr.hyosang.coordinate.*
+import kr.hyosang.coordinate.CoordPoint
+import kr.hyosang.coordinate.TransCoord
 import retrofit2.Call
 import retrofit2.Response
 import java.io.IOException
 import java.util.*
 import kotlin.properties.Delegates
+
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
     OnMapReadyCallback {
@@ -61,8 +60,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var tmX by Delegates.notNull<Double>()
     private var tmY by Delegates.notNull<Double>()
     //현재 위치 저장
+    private lateinit var initialPosition : LatLng
     private var lat by Delegates.notNull<Double>()
     private var lon by Delegates.notNull<Double>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -139,7 +140,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
 
 
-    private fun stationDust() { //측정소 API 불러오는 코드
+    private fun stationDust(onStationDustComplete: (String) -> Unit) { //측정소 API 불러오는 코드
         //var keyword = binding.edtProduct.text.toString()
         getTm()
         val call: Call<MYModel> = MyApplication.retroInterface.getRetrofit(
@@ -157,7 +158,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     val responseBody = response.body()
                     if (responseBody!=null) {
                         val firstItem = responseBody.response.body.items[0].stationName
-                        stationFineDust(firstItem.toString())
+                        onStationDustComplete(firstItem.toString())
                         Log.d("stationDust", "첫 번째 item의 stationName: ${firstItem.toString()}")
                     } else {
                         Log.d("stationDust", "items 리스트가 비어있습니다.")
@@ -176,7 +177,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
     }
 
-    private fun stationFineDust(stationName : String) { //미세먼지 API 불러오기
+    private fun stationFineDust(stationName: String, callback: (pm10: String, pm25: String) -> Unit) { //미세먼지 API 불러오기
         val call: Call<MySModel> = MyApplication.retroInterface2.getRetrofit2(
             stationName, //측정소이름
             "month",
@@ -191,6 +192,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
                 if(response.isSuccessful) {
                     Log.d("mobileApp", "${response.body()}")
+                    val pm10value= response.body()?.response?.body?.items?.get(0)?.pm10Value
+                    val pm25value= response.body()?.response?.body?.items?.get(0)?.pm25Value
+                    callback(pm10value.toString(), pm25value.toString())
                     //binding.retrofitRecyclerView.layoutManager = LinearLayoutManager(context)
                     //binding.retrofitRecyclerView.adapter = MyRetrofitAdapter(this, response.body()!!.body.items)
                 }
@@ -314,6 +318,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             naverMap.cameraPosition.target.latitude,
             naverMap.cameraPosition.target.longitude
         )
+        initialPosition = LatLng( // 초기 Latlng값 저장
+            naverMap.cameraPosition.target.latitude,
+            naverMap.cameraPosition.target.longitude
+        )
         marker.icon = OverlayImage.fromResource(R.drawable.baseline_place_24)
         marker.map = naverMap
 
@@ -338,24 +346,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
             "1.2"
         ) //call 객체에 초기화
-        Log.d("mobileApp", "${call.request()}")
+        Log.d("markers", "${call.request()}")
 
         call?.enqueue(object: retrofit2.Callback<MyAModel> {
             override fun onResponse(call: Call<MyAModel>, response: Response<MyAModel>) {
                 if (response.isSuccessful) {
                     val responseBody = response.body()
-                    if (responseBody != null) {
-                        Log.d("numofitems", responseBody.response.body.items.indices.toString())
+                    if (responseBody != null) { //화면에 보이는 마커만 불러오도록 변경해야됨=>js예제만 있어서 어려움..
                         for (i in responseBody.response.body.items.indices){
                             val stationName = responseBody.response.body.items[i].stationName
                             val sidoName = responseBody.response.body.items[i].sidoName
+                            val pm10 = responseBody.response.body.items[i].pm10Value
                             mMarkerList[i] = Marker()
-                            /*val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
-                            if (coord != null) {
-                                // 마커 찍기
-                                mMarkerList[i]?.position = coord
-                                mMarkerList[i]?.map = naverMap
-                            }*/
+//                            val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
+//                            if (coord != null) {
+//                                if (responseBody.response.body.items[i].pm10Value != null) {
+//                                    mMarkerList[i]?.width = 100
+//                                    mMarkerList[i]?.height = 100
+//                                    if (pm10!! <= 15.toString()) { //0~15 미세먼지 굿
+//                                        mMarkerList[i]?.position = coord
+//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_good)
+//                                        mMarkerList[i]?.map = naverMap
+//                                    }
+//                                    else if (pm10!! <= 35.toString() && pm10!! > 15.toString() ) { //15~35
+//                                        mMarkerList[i]?.position = coord
+//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_soso)
+//                                        mMarkerList[i]?.map = naverMap
+//                                    }
+//                                    else if (pm10!! <= 75.toString() && pm10!! > 35.toString() ) {// 35~75
+//                                        mMarkerList[i]?.position = coord
+//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_bad)
+//                                        mMarkerList[i]?.map = naverMap
+//                                    }
+//                                    else { //75~
+//                                        mMarkerList[i]?.position = coord
+//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_terri)
+//                                        mMarkerList[i]?.map = naverMap
+//                                    }
+//                                }
+//                                else {
+//                                    ///null 이면 마커 안찍음
+//                                }
+//
+//                            }// 주석영역끝
                             /* 마커에 클릭리스너 주기!!
                             val finalI = i
                             mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
@@ -364,6 +397,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     return false
                                 }
                             })*/
+
                         }
                     } else {
                         // Handle the case when the response body is null
@@ -378,6 +412,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // Handle the failure, e.g., show a Toast or display an error message
             }
         })
+
+
 
         // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
         naverMap.addOnCameraChangeListener { reason, animated ->
@@ -395,9 +431,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
-            //여기
-            /*val address = getAddress(naverMap.cameraPosition.target.latitude, naverMap.cameraPosition.target.longitude)
-            getSidoDust(getSido(address))*/
         }
 
         var currentLocation: Location?
@@ -450,18 +483,39 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         naverMap.addOnLocationChangeListener { location ->
             lat = location.latitude
             lon = location.longitude
-            stationDust()
+
         }
 
         //marker누르면 상세정보 페이지 띄우기
         marker.setOnClickListener {
-            val intent = Intent(this@MainActivity, InfoActivity::class.java)
-            startActivity(intent)
+            stationDust { firstItem ->
+                val station = firstItem
+                val marker_address = getAddress(marker.position.latitude, marker.position.longitude)
+
+
+                // stationFineDust 함수 사용
+                stationFineDust(station) { pm10value, pm25value ->
+                    // 콜백으로 전달된 pm10value를 이용하여 InfoActivity를 시작
+                    val intent = Intent(this@MainActivity, InfoActivity::class.java)
+                    intent.putExtra("pm10value", pm10value)
+                    intent.putExtra("pm25value", pm25value)
+                    intent.putExtra("stationvalue", station)
+                    intent.putExtra("addressvalue", marker_address)
+
+                    startActivity(intent)
+                }
+            }
             true
         }
+
+
+
+
+        // MainActivity 화면의 임의의 곳을 클릭하면 InfoActivity를 종료하도록 처리
     }
 
-    // 좌표 -> 주소 변환
+
+    // 좌표 -> 주소 변환     marker.setonclicklistener 에서 사용함
     private fun getAddress(lat: Double, lng: Double): String {
         val geoCoder = Geocoder(this, Locale.KOREA)
         val address: ArrayList<Address>
@@ -474,7 +528,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 // 주소 받아오기
                 val currentLocationAddress = address[0].getAddressLine(0)
                     .toString()
-                addressResult = currentLocationAddress
+                val words = currentLocationAddress.split(" ")
+
+
+                addressResult = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
 
             }
 
