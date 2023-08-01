@@ -39,6 +39,9 @@ android {
     dataBinding{
         enabled = true
     }
+    packagingOptions {
+        exclude 'META-INF/*.kotlin_module'
+    }
 }
 
 dependencies {
@@ -53,6 +56,8 @@ dependencies {
     implementation files('libs\\TransCoord.jar')
     implementation files('libs\\TransCoord.jar')
     implementation 'androidx.preference:preference:1.2.0'
+    implementation 'androidx.compose.animation:animation-core:1.1.1'
+    implementation 'androidx.compose.animation:animation-core-android:+'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -82,5 +87,10 @@ dependencies {
     //위치 권한 요청 Ted Permission - RxJava3
     implementation 'io.github.ParkSangGwon:tedpermission-rx3:3.3.0'
     implementation("com.google.android.gms:play-services-location:17.0.0")
+
+    configurations.all {
+        resolutionStrategy.force "androidx.compose.animation:animation-core:1.6.0-alpha02" // 원하는 버전 선택
+    }
+
 
 }

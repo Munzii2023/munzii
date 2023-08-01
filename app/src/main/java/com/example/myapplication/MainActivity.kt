@@ -19,7 +19,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
-import com.example.myapplication.databinding.ActivityInfoBinding
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -38,6 +37,8 @@ import retrofit2.Response
 import java.io.IOException
 import java.util.*
 import kotlin.properties.Delegates
+import com.naver.maps.map.CameraUpdate
+
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -56,6 +57,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private lateinit var marker : Marker
     private val mMarkerList = arrayOfNulls<Marker>(700) //공공데이터에서 불러오는 미세먼지 마커들
 
+    private var currentLating: com.naver.maps.geometry.LatLng?=null
+
     //현재 TM 좌표
     private var tmX by Delegates.notNull<Double>()
     private var tmY by Delegates.notNull<Double>()
@@ -64,6 +67,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var lat by Delegates.notNull<Double>()
     private var lon by Delegates.notNull<Double>()
 
+    private val markers = ArrayList<Marker>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,7 +92,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         mapView = findViewById(R.id.navermap_view)
         mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync(this)
+        mapView.getMapAsync { naverMap ->
+            this.naverMap = naverMap
+            setupMap()
+        }
 
         // 위치를 반환하는 구현체인 FusedLocationSource 생성
         mLocationSource = FusedLocationSource(this, PERMISSION_REQUEST_CODE)
@@ -107,7 +114,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                             // 주소 가져오기
                             val address = getAddress(latLng.latitude, latLng.longitude)
-                            Log.d("mobileApp", address)
                         } else {
                             // 주소를 찾을 수 없는 경우 처리
                         }
@@ -131,9 +137,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //위도경도 좌표계 => tm좌표 변환 함수
     private fun getTm(){
         val wgsPt = CoordPoint(naverMap.cameraPosition.target.longitude, naverMap.cameraPosition.target.latitude)
-        Log.d("mobileApp", wgsPt.x.toString())
         val tmPt = TransCoord.getTransCoord(wgsPt, TransCoord.COORD_TYPE_WGS84,TransCoord.COORD_TYPE_TM)
-        Log.d("mobileApp", tmPt.x.toString())
         tmX = tmPt.x
         tmY = tmPt.y
     }
@@ -159,7 +163,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     if (responseBody!=null) {
                         val firstItem = responseBody.response.body.items[0].stationName
                         onStationDustComplete(firstItem.toString())
-                        Log.d("stationDust", "첫 번째 item의 stationName: ${firstItem.toString()}")
                     } else {
                         Log.d("stationDust", "items 리스트가 비어있습니다.")
                     }
@@ -191,7 +194,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         call?.enqueue(object: retrofit2.Callback<MySModel> {
             override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
                 if(response.isSuccessful) {
-                    Log.d("mobileApp", "${response.body()}")
                     val pm10value= response.body()?.response?.body?.items?.get(0)?.pm10Value
                     val pm25value= response.body()?.response?.body?.items?.get(0)?.pm25Value
                     callback(pm10value.toString(), pm25value.toString())
@@ -337,87 +339,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // 권한확인. 결과는 onRequestPermissionsResult 콜백 매서드 호출
         ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
 
-        // 다중 마커
-        val call: Call<MyAModel> = MyApplication.retroInterface3.getRetrofit3( // 통신 부분
-            "전국", //측정소이름
-            "1",
-            "700",
-            "json",
-            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
-            "1.2"
-        ) //call 객체에 초기화
-        Log.d("markers", "${call.request()}")
-
-        call?.enqueue(object: retrofit2.Callback<MyAModel> {
-            override fun onResponse(call: Call<MyAModel>, response: Response<MyAModel>) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null) { //화면에 보이는 마커만 불러오도록 변경해야됨=>js예제만 있어서 어려움..
-                        for (i in responseBody.response.body.items.indices){
-                            val stationName = responseBody.response.body.items[i].stationName
-                            val sidoName = responseBody.response.body.items[i].sidoName
-                            val pm10 = responseBody.response.body.items[i].pm10Value
-                            mMarkerList[i] = Marker()
-//                            val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
-//                            if (coord != null) {
-//                                if (responseBody.response.body.items[i].pm10Value != null) {
-//                                    mMarkerList[i]?.width = 100
-//                                    mMarkerList[i]?.height = 100
-//                                    if (pm10!! <= 15.toString()) { //0~15 미세먼지 굿
-//                                        mMarkerList[i]?.position = coord
-//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_good)
-//                                        mMarkerList[i]?.map = naverMap
-//                                    }
-//                                    else if (pm10!! <= 35.toString() && pm10!! > 15.toString() ) { //15~35
-//                                        mMarkerList[i]?.position = coord
-//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_soso)
-//                                        mMarkerList[i]?.map = naverMap
-//                                    }
-//                                    else if (pm10!! <= 75.toString() && pm10!! > 35.toString() ) {// 35~75
-//                                        mMarkerList[i]?.position = coord
-//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_bad)
-//                                        mMarkerList[i]?.map = naverMap
-//                                    }
-//                                    else { //75~
-//                                        mMarkerList[i]?.position = coord
-//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_terri)
-//                                        mMarkerList[i]?.map = naverMap
-//                                    }
-//                                }
-//                                else {
-//                                    ///null 이면 마커 안찍음
-//                                }
-//
-//                            }// 주석영역끝
-                            /* 마커에 클릭리스너 주기!!
-                            val finalI = i
-                            mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
-                                override fun onClick(overlay: Overlay): Boolean {
-                                    Toast.makeText(application, "마커$finalI 클릭", Toast.LENGTH_SHORT).show()
-                                    return false
-                                }
-                            })*/
-
-                        }
-                    } else {
-                        // Handle the case when the response body is null
-                    }
-                } else {
-                    // Handle the case when the response is not successful
-                }
-            }
-
-            override fun onFailure(call: Call<MyAModel>, t: Throwable) {
-                Log.e("mobileApp", "Retrofit onFailure: ${t.toString()}")
-                // Handle the failure, e.g., show a Toast or display an error message
-            }
-        })
-
-
-
         // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
         naverMap.addOnCameraChangeListener { reason, animated ->
-            Log.i("NaverMap", "카메라 변경 - reson: $reason, animated: $animated")
             marker.position = LatLng(
                 // 현재 보이는 네이버맵의 정중앙 가운데로 마커 이동
                 naverMap.cameraPosition.target.latitude,
@@ -431,6 +354,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
+
+            val latLng = naverMap.cameraPosition.target
+            if (currentLating == null || (currentLating?.latitude != latLng.latitude || currentLating?.longitude != latLng.longitude)){
+                currentLating = latLng
+                fetchAndShowMarkers(latLng.latitude, latLng.longitude)
+            }
         }
 
         var currentLocation: Location?
@@ -509,9 +438,138 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
 
-
-
         // MainActivity 화면의 임의의 곳을 클릭하면 InfoActivity를 종료하도록 처리
+    }
+
+
+    private fun setupMap() {
+        val initLat = 37.51490471
+        val initLon = 126.98274432
+        val initCameraUpdate = CameraUpdate.scrollTo(LatLng(initLat, initLon)).animate(CameraAnimation.Easing)
+
+        naverMap.moveCamera(initCameraUpdate)
+        zoomTo(14.0)
+
+        // Add zoom change listener
+        naverMap.addOnCameraChangeListener { _, _ ->
+            markerUpdate()
+        }
+
+        // Add drag end listener
+        naverMap.addOnCameraIdleListener {
+            markerUpdate()
+        }
+
+        // Load markers
+        addMarkers()
+    }
+
+    private fun markerUpdate() {
+        val mapBounds = naverMap.contentBounds
+        for (marker in markers) {
+            if (mapBounds.contains(marker.position)) {
+                marker.map = naverMap // Show marker on the map
+            } else {
+                marker.map = null // Hide marker on the map
+            }
+        }
+    }
+
+    private fun addMarkers() {
+        val initLat = 37.51490471
+        val initLon = 126.98274432
+
+        for (i in 0 until 300) {
+            val lat = Math.random() / 10
+            val lon = Math.random() / 10
+            val marker = Marker()
+            marker.position = LatLng(initLat + lat, initLon + lon)
+            marker.captionText = "mylatlon"
+            markers.add(marker)
+        }
+
+        markerUpdate()
+    }
+
+    fun zoomTo(zoom:Double): CameraUpdate = CameraUpdate.zoomTo(zoom)
+
+    private fun  fetchAndShowMarkers(latitude: Double, logtitude: Double){
+        getTm()
+        // 다중 마커
+        val call: Call<MyAModel> = MyApplication.retroInterface3.getRetrofit3( // 통신 부분
+            "전국", //측정소이름
+            "1",
+            "700",
+            "json",
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "1.2"
+        ) //call 객체에 초기화
+        Log.d("markers", "${call.request()}")
+
+        call?.enqueue(object: retrofit2.Callback<MyAModel> {
+            override fun onResponse(call: Call<MyAModel>, response: Response<MyAModel>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    if (responseBody != null) { //화면에 보이는 마커만 불러오도록 변경해야됨=>js예제만 있어서 어려움..
+                        for (i in responseBody.response.body.items.indices){
+                            val stationName = responseBody.response.body.items[i].stationName
+                            val sidoName = responseBody.response.body.items[i].sidoName
+                            val pm10 = responseBody.response.body.items[i].pm10Value
+                            mMarkerList[i] = Marker()
+                            val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
+                            if (coord != null) {
+                                if (responseBody.response.body.items[i].pm10Value != null) {
+                                    mMarkerList[i]?.width = 100
+                                    mMarkerList[i]?.height = 100
+                                    if (pm10!! <= 15.toString()) { //0~15 미세먼지 굿
+                                        mMarkerList[i]?.position = coord
+                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_good)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                    else if (pm10!! <= 35.toString() && pm10!! > 15.toString() ) { //15~35
+                                        mMarkerList[i]?.position = coord
+                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_soso)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                    else if (pm10!! <= 75.toString() && pm10!! > 35.toString() ) {// 35~75
+                                        mMarkerList[i]?.position = coord
+                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_bad)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                    else { //75~
+                                        mMarkerList[i]?.position = coord
+                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_terri)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                }
+                                else {
+                                    ///null 이면 마커 안찍음
+                                }
+
+                            }// 주석영역끝
+                            /* 마커에 클릭리스너 주기!!
+                            val finalI = i
+                            mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
+                                override fun onClick(overlay: Overlay): Boolean {
+                                    Toast.makeText(application, "마커$finalI 클릭", Toast.LENGTH_SHORT).show()
+                                    return false
+                                }
+                            })*/
+
+                        }
+                    } else {
+                        // Handle the case when the response body is null
+                    }
+                } else {
+                    // Handle the case when the response is not successful
+                }
+            }
+
+            override fun onFailure(call: Call<MyAModel>, t: Throwable) {
+                Log.e("mobileApp", "Retrofit onFailure: ${t.toString()}")
+                // Handle the failure, e.g., show a Toast or display an error message
+            }
+        })
     }
 
 
