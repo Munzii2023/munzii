@@ -16,7 +16,7 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
-
+        compileSdkVersion 34 // 최소 34로 변경
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -88,9 +88,6 @@ dependencies {
     implementation 'io.github.ParkSangGwon:tedpermission-rx3:3.3.0'
     implementation("com.google.android.gms:play-services-location:17.0.0")
 
-    configurations.all {
-        resolutionStrategy.force "androidx.compose.animation:animation-core:1.6.0-alpha02" // 원하는 버전 선택
-    }
 
 
 }

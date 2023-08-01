@@ -142,8 +142,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         tmY = tmPt.y
     }
 
-
-
     private fun stationDust(onStationDustComplete: (String) -> Unit) { //측정소 API 불러오는 코드
         //var keyword = binding.edtProduct.text.toString()
         getTm()
