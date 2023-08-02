@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import MYModel
+import MyAModel
 import MySModel
 import android.Manifest
 import android.app.*
@@ -14,6 +15,8 @@ import android.location.Geocoder
 import android.util.Log
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -21,10 +24,16 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import com.gun0912.tedpermission.provider.TedPermissionProvider.context
 import com.naver.maps.geometry.LatLng
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kr.hyosang.coordinate.CoordPoint
 import kr.hyosang.coordinate.TransCoord
 import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
 import java.util.*
@@ -49,6 +58,8 @@ class AlarmActivity : AppCompatActivity() {
     // 사용자가 설정한 위치의 TM 좌표
     private var tmX by Delegates.notNull<Double>()
     private var tmY by Delegates.notNull<Double>()
+    // 미세먼지 수치
+    private var fineDustStatus: String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,15 +143,31 @@ class AlarmActivity : AppCompatActivity() {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
 
-            saveFineDustInfoSettings()
-            saveFineDustLevelSettings()
+            // 사용자가 설정한 시간에 알림 예약하고, 미세먼지 정보를 가져오기 위해 saveFineDustInfoSettings() 함수를 호출합니다.
+//            saveFineDustInfoSettings()
+//            saveFineDustLevelSettings()
         }
+
+//        // Check if the activity is triggered by the alarm
+//        if (intent?.action == "ACTION_SHOW_NOTIFICATION") {
+//            // Show the notification
+//
+//            showNotification(fineDustStatus, contentText)
+//
+//
+//            // Finish the activity immediately to prevent it from being shown
+//            finish()
+//        }
+
+
     }
+
 
     private fun saveNotificationSettings() {
         // 사용자가 설정한 시간과 위치를 SharedPreferences에 저장
         val isNotificationEnabled = notificationSwitch.isChecked
         val time = "${timePicker.hour}:${timePicker.minute}"
+        val savedNotificationEnabled = sharedPreferences.getBoolean("notification_enabled", false)
         val location = locationEditText.text.toString()
 
         // 체크박스의 값 확인
@@ -171,18 +198,69 @@ class AlarmActivity : AppCompatActivity() {
         editor.putString("saved_fine_dust_status", selectedFineDustStatus)
 
         editor.apply()
+
+        /// AlarmManager를 사용하여 사용자가 설정한 시간에 알림 예약
+        if (savedNotificationEnabled) {
+            // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+            calendar.set(Calendar.MINUTE, timePicker.minute)
+            calendar.set(Calendar.SECOND, 0)
+            val selectedTimeInMillis = calendar.timeInMillis
+
+            // 현재 시간과 사용자가 설정한 시간 사이의 시간 차이 계산
+            val currentTimeInMillis = System.currentTimeMillis()
+            val timeDifference = selectedTimeInMillis - currentTimeInMillis
+
+            // Handler를 사용하여 대기 후 saveFineDustInfoSettings() 함수를 호출
+            val handler = Handler(Looper.getMainLooper())
+            handler.postDelayed({
+                // 사용자가 설정한 시간에 알림 예약
+                val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+                val intent = Intent(this, AlarmActivity::class.java)
+                intent.action = "ACTION_SHOW_NOTIFICATION"
+                val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
+
+                // 미세먼지 정보 저장 함수 호출
+                saveFineDustInfoSettings()
+            }, timeDifference)
+
+//                    // 사용자가 설정한 시간에 알림 예약하고, 알림을 표시하기 위해 showNotification() 함수를 호출합니다.
+//                    showNotification(fineDustStatus)
+
+//                    // 알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정
+//                    val infoIntent = Intent(this@AlarmActivity, InfoActivity::class.java)
+//                    intent.putExtra("pm10value", pm10value)
+//                    intent.putExtra("stationvalue", station)
+//                    intent.putExtra("addressvalue", savedLocation)
+//
+//                    val infoPendingIntent = PendingIntent.getActivity(
+//                        this@AlarmActivity, 0, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+//                    )
+        } else {
+            // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
+            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+            val intent = Intent(this, AlarmActivity::class.java)
+            intent.action = "ACTION_SHOW_NOTIFICATION"
+            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_NO_CREATE)
+            pendingIntent?.let {
+                alarmManager.cancel(it)
+            }
+        }
     }
 
     // 사용자가 설정한 위치에 따른 미세먼지 정보 저장
     private fun saveFineDustInfoSettings() {
-        val savedNotificationEnabled = sharedPreferences.getBoolean("notification_enabled", false)
+
         val savedLocation = sharedPreferences.getString("saved_location", "")
 
         findNearestStation { firstItem ->
             val station = firstItem
 
+            // 네트워크 응답이나 기타 비동기적 작업에서 contentText를 가져옵니다.
             getstationFineDustInfo(station) { pm10value ->
-                val fineDustStatus: String = when (pm10value.toInt()) {
+                fineDustStatus = when (pm10value.toInt()) {
                     in 0..15 -> "좋음"
                     in 16..35 -> "보통"
                     in 36..75 -> "나쁨"
@@ -192,45 +270,75 @@ class AlarmActivity : AppCompatActivity() {
                 contentText = "오늘의 미세먼지는 $fineDustStatus"
                 Log.d("contentText", contentText)
 
-                // AlarmManager를 사용하여 사용자가 설정한 시간에 알림 예약
-                if (savedNotificationEnabled) {
-                    val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-                    val intent = Intent(this, AlarmActivity::class.java)
-                    val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+                // 알림을 표시하는 함수 호출
+                showNotification(fineDustStatus, contentText)
 
-                    // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
-                    val calendar = Calendar.getInstance()
-                    calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
-                    calendar.set(Calendar.MINUTE, timePicker.minute)
-                    calendar.set(Calendar.SECOND, 0) // 초를 0으로 설정하여 정각에 트리거되도록 함
-                    val selectedTimeInMillis = calendar.timeInMillis
 
-                    // 알림을 선택한 시간에 트리거하도록 알람 설정
-                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
 
-                    // 알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정
-                    val infoIntent = Intent(this@AlarmActivity, InfoActivity::class.java)
-                    intent.putExtra("pm10value", pm10value)
-                    intent.putExtra("stationvalue", station)
-                    intent.putExtra("addressvalue", savedLocation)
 
-                    val infoPendingIntent = PendingIntent.getActivity(
-                        this@AlarmActivity, 0, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                    )
-                } else {
-                    // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
-                    val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-                    val intent = Intent(this, AlarmActivity::class.java)
-                    val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_NO_CREATE)
-                    pendingIntent?.let {
-                        alarmManager.cancel(it)
-                    }
-                }
-                // 사용자가 설정한 시간에 알림 예약하고, 알림을 표시하기 위해 showNotification() 함수를 호출합니다.
-                showNotification(fineDustStatus)
             }
         }
     }
+
+    private fun onNotificationContentReady(contentText: String) {
+        // 미세먼지 정보가 준비된 후, 이 함수가 호출됩니다.
+        // contentText를 이용하여 showNotification() 함수를 호출하면 됩니다.
+        showNotification(fineDustStatus, contentText)
+    }
+
+    private fun showNotification(fineDustStatus: String, contentText: String) {
+
+        // 알림 채널 생성 (Android 8.0 이상에서 필요)
+        createNotificationChannel()
+
+        val savedLocation = sharedPreferences.getString("saved_location", "")
+
+        val imageResId = when {
+            fineDustStatus.isNotEmpty() -> when {
+                fineDustStatus == "좋음" -> R.drawable.marker_good
+                fineDustStatus == "보통" -> R.drawable.marker_soso
+                fineDustStatus == "나쁨" -> R.drawable.marker_bad
+                else -> R.drawable.marker_terri
+            }
+            else -> R.drawable.smile
+        }
+
+        // 알림 생성
+        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(savedLocation)
+            .setContentText(contentText)
+            .setPriority(NotificationCompat.PRIORITY_LOW) // 알림이 뜰 때 알림페이지도 뜨지 않기 위해 -> 낮은 중요도로 설정
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setLargeIcon(BitmapFactory.decodeResource(resources, imageResId))
+            .setStyle(NotificationCompat.BigTextStyle().bigText("$savedLocation - $contentText")) // 알림 내용 옆에 이미지 표시
+            .setAutoCancel(true)
+
+        // 권한 체크
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val permissionCheck = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.FOREGROUND_SERVICE
+            )
+
+            // 권한이 허용되었는지 확인
+            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                // 알림 보여주기
+                val notificationManager = NotificationManagerCompat.from(this)
+                notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+            } else {
+                // 권한이 허용되지 않았다면 권한 요청
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.FOREGROUND_SERVICE),
+                    PERMISSION_REQUEST_CODE
+                )
+            }
+        }
+
+    }
+
+
 
     // 사용자가 설정한 위치에 따른 미세먼지 수치 설정 저장
     private fun saveFineDustLevelSettings(){
@@ -261,7 +369,7 @@ class AlarmActivity : AppCompatActivity() {
                         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
                     }
-                //  알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정
+                    // 알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정
                     val infoIntent = Intent(this@AlarmActivity, InfoActivity::class.java)
                     intent.putExtra("pm10value", pm10value)
                     intent.putExtra("stationvalue", station)
@@ -280,7 +388,7 @@ class AlarmActivity : AppCompatActivity() {
                     }
                 }
                 // 사용자가 설정한 시간에 알림 예약하고, 알림을 표시하기 위해 showNotification() 함수를 호출합니다.
-                showNotification(fineDustStatus)
+                // showNotification(fineDustStatus)
             }
         }
     }
@@ -296,62 +404,14 @@ class AlarmActivity : AppCompatActivity() {
         Log.d("sharedpreference", "저장된 상태 : $savedFinedustStatus")
     }
 
-    private fun showNotification(fineDustStatus: String) {
-        // 알림 채널 생성 (Android 8.0 이상에서 필요)
-        createNotificationChannel()
 
-        val savedLocation = sharedPreferences.getString("saved_location", "")
-
-        val imageResId = when {
-            fineDustStatus.isNotEmpty() -> when {
-                fineDustStatus == "좋음" -> R.drawable.marker_good
-                fineDustStatus == "보통" -> R.drawable.marker_soso
-                fineDustStatus == "나쁨" -> R.drawable.marker_bad
-                else -> R.drawable.marker_terri
-            }
-            else -> R.drawable.smile
-        }
-
-        // 알림 생성
-        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(savedLocation)
-            .setContentText(contentText)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setLargeIcon(BitmapFactory.decodeResource(resources, imageResId))
-            .setStyle(NotificationCompat.BigTextStyle().bigText("$savedLocation - $contentText")) // 알림 내용 옆에 이미지 표시
-            .setAutoCancel(true)
-
-        // 권한 체크
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val permissionCheck = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.FOREGROUND_SERVICE
-            )
-
-            // 권한이 허용되었는지 확인
-            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                // 알림 보여주기
-                val notificationManager = NotificationManagerCompat.from(this)
-                notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
-            } else {
-                // 권한이 허용되지 않았다면 권한 요청
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.FOREGROUND_SERVICE),
-                    PERMISSION_REQUEST_CODE
-                )
-            }
-        }
-    }
 
     private fun createNotificationChannel() {
         // Android 8.0 이상에서 알림 채널을 생성해야 함
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "NotificationChannelName"
             val descriptionText = "Notification Channel Description"
-            val importance = NotificationManager.IMPORTANCE_HIGH // 중요도 설정을 IMPORTANCE_HIGH로 변경
+            val importance = NotificationManager.IMPORTANCE_LOW // 중요도 설정을 IMPORTANCE_HIGH로 변경 -> 알림 페이지 안 뜨게 하려고 다시 IMPORTANCE_LOW로 변경
             val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
                 description = descriptionText
                 enableLights(true)

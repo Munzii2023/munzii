@@ -30,9 +30,10 @@ interface Retrointerface2 { // 미세먼지 공공데이터 - 측정소 이름
         @Query("numOfRows") numOfRows: String?,
         @Query("returnType") returnType: String?,
         @Query("ver") ver: String?,
-        s: String
+        @Query("serviceKey") serviceKey: String?
     ): Call<MySModel>
 }
+
 
 interface Retrointerface3 { // 미세먼지 공공데이터 - 시도 이름
     //http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?
