@@ -492,7 +492,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val station = firstItem
                 val marker_address = getAddress(marker.position.latitude, marker.position.longitude)
 
-
                 // stationFineDust 함수 사용
                 stationFineDust(station) { pm10value, pm25value ->
                     // 콜백으로 전달된 pm10value를 이용하여 InfoActivity를 시작
