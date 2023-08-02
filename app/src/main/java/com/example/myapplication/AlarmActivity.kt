@@ -23,6 +23,8 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.gun0912.tedpermission.provider.TedPermissionProvider.context
 import com.naver.maps.geometry.LatLng
+import kr.hyosang.coordinate.CoordPoint
+import kr.hyosang.coordinate.TransCoord
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,7 +32,12 @@ import java.io.IOException
 import java.util.*
 import kotlin.properties.Delegates
 
-class AlarmActivity : AppCompatActivity() {
+
+interface FineDustCallback {
+    fun onFineDustInfoReady(contentText: String)
+}
+
+class AlarmActivity : AppCompatActivity(), FineDustCallback {
 
     private lateinit var notificationSwitch: Switch
     private lateinit var notificationSettingsLayout: LinearLayout
@@ -46,21 +53,23 @@ class AlarmActivity : AppCompatActivity() {
     private lateinit var radioButtonVeryGood: RadioButton
     private lateinit var saveButton: Button
     private lateinit var sharedPreferences: SharedPreferences
-    // 사용자가 설정한 위치
-    private var userSettingLocation: String = "기본 위치"
+
     // 사용자가 설정한 위치의 TM 좌표
     private var tmX by Delegates.notNull<Double>()
     private var tmY by Delegates.notNull<Double>()
-    // 미세먼지와 초미세먼지 정보를 저장할 변수
-    private var pm10Value: Double = 0.0
-    private var pm25Value: Double = 0.0
     // 알림 내용
     private var contentText: String = "알림 내용:"
+
+    // context 변수 정의
+    private lateinit var context: Context
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm)
+
+        // context 변수 초기화
+        context = this // this는 AlarmActivity의 Context를 가리킵니다.
 
         notificationSwitch = findViewById(R.id.notificationSwitch)
         notificationSettingsLayout = findViewById(R.id.notificationSettingsLayout)
@@ -119,7 +128,6 @@ class AlarmActivity : AppCompatActivity() {
         }
 
         locationEditText.setText(savedLocation)
-        userSettingLocation = savedLocation
 
         // Switch 상태 변경 이벤트 처리
         notificationSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -138,9 +146,11 @@ class AlarmActivity : AppCompatActivity() {
             // SharedPreferences에서 저장된 시간과 위치를 출력합니다 (저장확인용)
             displaySavedTimeAndLocation()
 
-            Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
 
             saveFineDustInfoSettings()
+
+
+            Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
 
             // MainActivity로 화면 전환을 위한 코드
             val intent = Intent(this, MainActivity::class.java)
@@ -156,6 +166,14 @@ class AlarmActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    override fun onFineDustInfoReady(contentText: String) {
+
+        this.contentText = contentText
+        showNotification()
+    }
+
+
 
     private fun saveNotificationSettings() {
         // 사용자가 설정한 시간과 위치를 SharedPreferences에 저장
@@ -186,85 +204,47 @@ class AlarmActivity : AppCompatActivity() {
         val savedNotificationEnabled = sharedPreferences.getBoolean("notification_enabled", false)
         val savedLocation = sharedPreferences.getString("saved_location", "")
 
-        // 사용자 위치를 TM 좌표로 변환합니다
-        getTm()
+        findNearestStation { firstItem ->
+            val station = firstItem
 
-        // API를 호출하여 TM 좌표를 기반으로 측정소 이름을 가져옵니다
-        val call: Call<MYModel> = MyApplication.retroInterface.getRetrofit(
-            tmX.toString(),
-            tmY.toString(),
-            "json",
-            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
-            "1.1"
-        )
+            // 네트워크 응답이나 기타 비동기적 작업에서 contentText를 가져옵니다.
+            getstationFineDustInfo(station) { pm10value ->
+                contentText = "알림 내용: $savedLocation 의 미세먼지 정보 - PM10: $pm10value"
+                Log.d("contentText", "알림 내용: $savedLocation 의 미세먼지 정보 - PM10: $pm10value")
 
-        call?.enqueue(object : retrofit2.Callback<MYModel> {
-            override fun onResponse(call: Call<MYModel>, response: Response<MYModel>) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null && responseBody.response.body.items.isNotEmpty()) {
-                        val firstItem = responseBody.response.body.items[0].stationName.toString()
+                // 콜백을 호출하여 contentText를 액티비티로 전달합니다.
+                onFineDustInfoReady(contentText)
 
-                        // API를 호출하여 선택된 측정소의 미세먼지 정보를 가져옵니다
-                        getstationFineDustInfo(firstItem) { pm10Value, pm25Value ->
-                            Log.d("stationDust", "첫 번째 item의 stationName: $firstItem")
-                            // 미세먼지 정보를 가져왔으므로 알림 내용을 설정합니다.
-                            contentText =
-                                "알림 내용: $userSettingLocation 의 미세먼지 정보 - PM10: $pm10Value"
 
-                            // AlarmManager를 사용하여 사용자가 설정한 시간에 알림 예약
-                            if (savedNotificationEnabled) {
-                                val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-                                val intent = Intent(applicationContext, AlarmActivity::class.java)
-                                intent.action = "ACTION_SHOW_NOTIFICATION"
-                                val pendingIntent = PendingIntent.getActivity(
-                                    applicationContext,
-                                    0,
-                                    intent,
-                                    PendingIntent.FLAG_IMMUTABLE
-                                )
+                // AlarmManager를 사용하여 사용자가 설정한 시간에 알림 예약
+                if (savedNotificationEnabled) {
+                    val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+                    val intent = Intent(this, AlarmActivity::class.java)
+                    intent.action = "ACTION_SHOW_NOTIFICATION"
+                    val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-                                // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
-                                val calendar = Calendar.getInstance()
-                                calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
-                                calendar.set(Calendar.MINUTE, timePicker.minute)
-                                calendar.set(Calendar.SECOND, 0) // 초를 0으로 설정하여 정각에 트리거되도록 함
-                                val selectedTimeInMillis = calendar.timeInMillis
-                                Log.d("AlarmActivity", "밀리초로 변환한 값은 $selectedTimeInMillis 입니다.")
+                    // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
+                    val calendar = Calendar.getInstance()
+                    calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+                    calendar.set(Calendar.MINUTE, timePicker.minute)
+                    calendar.set(Calendar.SECOND, 0) // 초를 0으로 설정하여 정각에 트리거되도록 함
+                    val selectedTimeInMillis = calendar.timeInMillis
+                    Log.d("AlarmActivity", "밀리초로 변환한 값은 $selectedTimeInMillis 입니다.")
 
-                                // 알림을 선택한 시간에 트리거하도록 알람 설정
-                                alarmManager.setExact(
-                                    AlarmManager.RTC_WAKEUP,
-                                    selectedTimeInMillis,
-                                    pendingIntent
-                                )
-                            } else {
-                                // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
-                                val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-                                val intent = Intent(applicationContext, AlarmActivity::class.java)
-                                intent.action = "ACTION_SHOW_NOTIFICATION"
-                                val pendingIntent = PendingIntent.getActivity(
-                                    applicationContext,
-                                    0,
-                                    intent,
-                                    PendingIntent.FLAG_NO_CREATE
-                                )
-                                pendingIntent?.let {
-                                    alarmManager.cancel(it)
-                                }
-                            }
-                        }
-                    } else {
-                        Log.d("stationDust", "측정소 정보를 찾을 수 없습니다.")
+                    // 알림을 선택한 시간에 트리거하도록 알람 설정
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
+                } else {
+                    // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
+                    val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+                    val intent = Intent(this, AlarmActivity::class.java)
+                    intent.action = "ACTION_SHOW_NOTIFICATION"
+                    val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_NO_CREATE)
+                    pendingIntent?.let {
+                        alarmManager.cancel(it)
                     }
                 }
             }
-
-            override fun onFailure(call: Call<MYModel>, t: Throwable) {
-                Log.d("stationDust", "측정소 정보를 가져오지 못했습니다.")
-                // 측정소 정보를 가져올 수 없는 경우 적절한 조치를 취하거나 오류 메시지를 표시합니다.
-            }
-        })
+        }
     }
 
     // 사용자가 설정한 위치에 따른 미세먼지 수치 설정 저장
@@ -272,37 +252,54 @@ class AlarmActivity : AppCompatActivity() {
         val savedNotificationEnabled = sharedPreferences.getBoolean("notification_enabled", false)
         val savedLocation = sharedPreferences.getString("saved_location", "")
 
-        contentText = "알림 내용: $savedLocation 의 미세먼지 정보 - PM10: $pm10Value, PM2.5: $pm25Value"
+        // 미세먼지 정보를 가져오기 위해 API를 호출합니다.
+        findNearestStation { firstItem ->
+            val station = firstItem
 
-        // AlarmManager를 사용하여 사용자가 설정한 시간에 알림 예약
-        if (savedNotificationEnabled) {
-            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-            val intent = Intent(this, AlarmActivity::class.java)
-            intent.action = "ACTION_SHOW_NOTIFICATION"
-            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+            getstationFineDustInfo(station) { pm10value ->
+                // 미세먼지 정보를 가져왔으므로 contentText를 설정합니다.
+                val fineDustLevel = when (pm10value.toInt()) {
+                    in 0..30 -> "매우 좋음"
+                    in 31..50 -> "좋음"
+                    in 51..100 -> "보통"
+                    in 101..150 -> "나쁨"
+                    else -> "매우 나쁨"
+                }
+                contentText = "알림 내용: $savedLocation 의 미세먼지 정보 - 미세먼지 농도: $pm10value ($fineDustLevel)"
 
-            // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
-            val calendar = Calendar.getInstance()
-            calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
-            calendar.set(Calendar.MINUTE, timePicker.minute)
-            calendar.set(Calendar.SECOND, 0) // 초를 0으로 설정하여 정각에 트리거되도록 함
-            val selectedTimeInMillis = calendar.timeInMillis
-            Log.d("AlarmActivity", "밀리초로 변환한 값은 $selectedTimeInMillis 입니다.")
+                // AlarmManager를 사용하여 사용자가 설정한 시간에 알림 예약
+                if (savedNotificationEnabled) {
+                    val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+                    val intent = Intent(this, AlarmActivity::class.java)
+                    intent.action = "ACTION_SHOW_NOTIFICATION"
+                    val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
-            // 알림을 선택한 시간에 트리거하도록 알람 설정
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
-        } else {
-            // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
-            val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-            val intent = Intent(this, AlarmActivity::class.java)
-            intent.action = "ACTION_SHOW_NOTIFICATION"
-            val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_NO_CREATE)
-            pendingIntent?.let {
-                alarmManager.cancel(it)
+                    // timePicker에서 선택한 시간을 가져와서 밀리초로 변환
+                    val calendar = Calendar.getInstance()
+                    calendar.set(Calendar.HOUR_OF_DAY, timePicker.hour)
+                    calendar.set(Calendar.MINUTE, timePicker.minute)
+                    calendar.set(Calendar.SECOND, 0) // 초를 0으로 설정하여 정각에 트리거되도록 함
+                    val selectedTimeInMillis = calendar.timeInMillis
+                    Log.d("AlarmActivity", "밀리초로 변환한 값은 $selectedTimeInMillis 입니다.")
+
+                    // 알림을 선택한 시간에 트리거하도록 알람 설정
+                    alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
+                } else {
+                    // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
+                    val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+                    val intent = Intent(this, AlarmActivity::class.java)
+                    intent.action = "ACTION_SHOW_NOTIFICATION"
+                    val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_NO_CREATE)
+                    pendingIntent?.let {
+                        alarmManager.cancel(it)
+                    }
+                }
             }
         }
     }
 
+
+    // 저스트 로그 확인용
     private fun displaySavedTimeAndLocation() {
         // SharedPreferences에서 저장된 시간과 위치를 가져옵니다
         val savedTime = sharedPreferences.getString("saved_time", "")
@@ -312,45 +309,44 @@ class AlarmActivity : AppCompatActivity() {
         Log.d("AlarmActivity", "저장된 시간: $savedTime, 저장된 위치: $savedLocation")
     }
 
+    // 알림 생성하는 메소드
     private fun showNotification() {
         // 알림 채널 생성 (Android 8.0 이상에서 필요)
         createNotificationChannel()
 
-        // 사용자가 설정한 시간과 위치 정보 가져오기
-        val location = locationEditText.text.toString()
+        // contentText가 비어있지 않은 경우에만 알림을 생성하도록 처리
+        if (contentText.isNotEmpty()) {
+            Log.d("contentText", "showNotification()에서의 contentText값은 $contentText 입니다.")
 
-        // 알림 생성
-        val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("알림 제목")
-            .setContentText(contentText) // contentText 변수 사용
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setAutoCancel(true)
+            // 알림 생성
+            val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle("알림 제목")
+                .setContentText(contentText) // 이 부분 수정해봐야 함 <- 문제가 지속되어 콜백 메커니즘 방식 사용하여 해결
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setAutoCancel(true)
 
-        // 알림을 띄우기 전에 이전에 생성된 알림을 취소합니다.
-        val notificationManager = NotificationManagerCompat.from(this)
-        notificationManager.cancel(NOTIFICATION_ID)
-
-        // 권한 체크
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val permissionCheck = ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.FOREGROUND_SERVICE
-            )
-
-            // 권한이 허용되었는지 확인
-            if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-                // 알림 보여주기
-                val notificationManager = NotificationManagerCompat.from(this)
-                notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
-            } else {
-                // 권한이 허용되지 않았다면 권한 요청
-                ActivityCompat.requestPermissions(
+            // 권한 체크
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val permissionCheck = ContextCompat.checkSelfPermission(
                     this,
-                    arrayOf(Manifest.permission.FOREGROUND_SERVICE),
-                    PERMISSION_REQUEST_CODE
+                    Manifest.permission.FOREGROUND_SERVICE
                 )
+
+                // 권한이 허용되었는지 확인
+                if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+                    // 알림 보여주기
+                    val notificationManager = NotificationManagerCompat.from(this)
+                    notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+                } else {
+                    // 권한이 허용되지 않았다면 권한 요청
+                    ActivityCompat.requestPermissions(
+                        this,
+                        arrayOf(Manifest.permission.FOREGROUND_SERVICE),
+                        PERMISSION_REQUEST_CODE
+                    )
+                }
             }
         }
     }
@@ -383,7 +379,8 @@ class AlarmActivity : AppCompatActivity() {
 
     // 사용자가 설정한 위치를 위도, 경도 좌표로 변환
     private fun convertAddressToLatLng(): LatLng {
-        val geocoder = Geocoder(context, Locale.KOREA)
+        val geocoder = Geocoder(context, Locale.KOREA) // context를 사용하여 Geocoder 초기화
+        val userSettingLocation = locationEditText.text.toString()
 
         try {
             val addressList = geocoder.getFromLocationName(userSettingLocation, 1)
@@ -391,6 +388,7 @@ class AlarmActivity : AppCompatActivity() {
             if (addressList != null && addressList.isNotEmpty()) {
                 val latitude = addressList[0].latitude
                 val longitude = addressList[0].longitude
+                Log.d("위도는 $latitude , 경도는 $longitude 입니다.", "")
                 return LatLng(latitude, longitude)
             } else {
                 throw IllegalArgumentException("Invalid address or unable to find location for the given address: $userSettingLocation")
@@ -400,41 +398,91 @@ class AlarmActivity : AppCompatActivity() {
         }
     }
 
+
     // TM 좌표로 변환
+//    private fun getTm() {
+//        // 1. 사용자 입력 위치 정보를 WGS84 좌표로 변환
+//        val userLatLng = convertAddressToLatLng()
+//
+//        // 2. 변환된 WGS84 좌표를 TM 좌표로 변환합니다.
+//        tmX = userLatLng.longitude
+//        tmY = userLatLng.latitude
+//        Log.d("TM", "tmX: $tmX, tmY: $tmY 입니다.")
+//    }
+
+    // 위도, 경도 좌표 -> TM 좌표로 변환하는 함수 <- 이상 없음
     private fun getTm() {
-        // 1. 사용자 입력 위치 정보를 WGS84 좌표로 변환
+        // 1. 사용자 입력 위치 정보를 위도, 경도 좌표로 변환
         val userLatLng = convertAddressToLatLng()
 
-        // 2. 변환된 WGS84 좌표를 TM 좌표로 변환합니다.
-        tmX = userLatLng.longitude
-        tmY = userLatLng.latitude
+        // 2. 변환된 위도, 경도 좌표를 TM 좌표로 변환합니다.
+        val wgsPt = CoordPoint(userLatLng.longitude, userLatLng.latitude)
+        val tmPt = TransCoord.getTransCoord(wgsPt, TransCoord.COORD_TYPE_WGS84, TransCoord.COORD_TYPE_TM)
+
+        // 3. TM 좌표로 변환된 값을 tmX와 tmY에 저장합니다.
+        tmX = tmPt.x
+        tmY = tmPt.y
+        Log.d("latlng", "$tmX,$tmY")
     }
 
-    private fun getstationFineDustInfo(stationName: String, callback: (pm10Value: Double, pm25Value: Double) -> Unit) {
-        val call: Call<MyAModel> = MyApplication.retroInterface3.getRetrofit3(
-            stationName,
+
+    // 여기서 가거도가 뜸 -> 갑자기 해결됨
+    // 이 함수는 사용자가 설정한 위치에서 가장 가까운 측정소 정보 찾아주는 함수임
+    private fun findNearestStation(onStationDustComplete: (String) -> Unit) {
+        getTm()
+        val call: Call<MYModel> = MyApplication.retroInterface.getRetrofit(
+            tmX.toString(),
+            tmY.toString(),
+            "json",
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg==",
+            "1.1"
+        )
+
+        call?.enqueue(object : retrofit2.Callback<MYModel> {
+            override fun onResponse(call: Call<MYModel>, response: Response<MYModel>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    if (responseBody != null && responseBody.response.body.items.isNotEmpty()) {
+                        val firstItem = responseBody.response.body.items[0].stationName.toString()
+                        onStationDustComplete(firstItem)
+                        Log.d("stationDust", "첫 번째 item의 stationName: ${firstItem}")
+                    } else {
+                        Log.d("stationDust", "측정소 정보를 찾을 수 없습니다.")
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<MYModel>, t: Throwable) {
+                Log.d("stationDust", "측정소 정보를 가져오지 못했습니다.")
+                // 실패한 경우에도 미세먼지 정보 설정을 호출하여 처리
+                // saveFineDustInfoSettings()
+            }
+        })
+    }
+
+    // 이건 찾은 측정소 정보를 이용하여 측정소 정보의 미세먼지 정보를 설정하기 위한 함수임
+    // 여기서 문제가 발생함 [[이제 이걸 수정하면 됨]] <- 이상 없음
+    private fun getstationFineDustInfo(stationName: String, callback: (pm10: String) -> Unit) {
+        val call: Call<MySModel> = MyApplication.retroInterface2.getRetrofit2(
+            stationName, //측정소이름
             "month",
             "1",
             "100",
             "json",
             "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg=="
-        )
+        ) //call 객체에 초기화
 
-        call.enqueue(object : Callback<MyAModel> {
-            override fun onResponse(call: Call<MyAModel>, response: Response<MyAModel>) {
-                if (response.isSuccessful) {
-                    val fineDustData = response.body()
-                    if (fineDustData != null && fineDustData.response.body.items.isNotEmpty()) {
-                        pm10Value = fineDustData.response.body.items[0].pm10Value?.toDouble() ?: 0.0
-                        pm25Value = fineDustData.response.body.items[0].pm25Value?.toDouble() ?: 0.0
-                        callback(pm10Value, pm25Value)
-                    }
+        call?.enqueue(object: retrofit2.Callback<MySModel> {
+            override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
+                if(response.isSuccessful) {
+                    val pm10value= response.body()?.response?.body?.items?.get(0)?.pm10Value
+                    Log.d("fineDust : ", "$pm10value")
+                    callback(pm10value.toString())
+
                 }
             }
-            override fun onFailure(call: Call<MyAModel>, t: Throwable) {
+            override fun onFailure(call: Call<MySModel>, t: Throwable) {
                 Log.d("fineDust", "미세먼지 정보를 가져오지 못했습니다.")
-                // 미세먼지 정보를 가져오지 못해도 콜백을 호출하여 빈 값으로 처리
-                callback(0.0, 0.0)
             }
         })
     }
