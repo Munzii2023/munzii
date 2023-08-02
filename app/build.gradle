@@ -83,4 +83,7 @@ dependencies {
     implementation 'io.github.ParkSangGwon:tedpermission-rx3:3.3.0'
     implementation("com.google.android.gms:play-services-location:17.0.0")
 
+    //코루틴
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2'
+
 }
