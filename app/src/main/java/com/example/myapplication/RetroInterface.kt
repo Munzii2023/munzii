@@ -30,7 +30,7 @@ interface Retrointerface2 { // 미세먼지 공공데이터 - 측정소 이름
         @Query("numOfRows") numOfRows: String?,
         @Query("returnType") returnType: String?,
         @Query("ver") ver: String?,
-        @Query("serviceKey") serviceKey: String?
+        s: String
     ): Call<MySModel>
 }
 

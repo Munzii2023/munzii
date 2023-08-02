@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import MYModel
-import MyAModel
 import MySModel
 import android.Manifest
 import android.app.*
@@ -22,16 +21,10 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
-import com.gun0912.tedpermission.provider.TedPermissionProvider.context
 import com.naver.maps.geometry.LatLng
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kr.hyosang.coordinate.CoordPoint
 import kr.hyosang.coordinate.TransCoord
 import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
 import java.util.*
@@ -268,7 +261,7 @@ class AlarmActivity : AppCompatActivity() {
                         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
 
                     }
-                    // 알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정
+                //  알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정
                     val infoIntent = Intent(this@AlarmActivity, InfoActivity::class.java)
                     intent.putExtra("pm10value", pm10value)
                     intent.putExtra("stationvalue", station)
