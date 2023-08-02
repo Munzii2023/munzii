@@ -417,7 +417,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
         naverMap.addOnCameraChangeListener { reason, animated ->
-            Log.i("NaverMap", "카메라 변경 - reson: $reason, animated: $animated")
+            //Log.i("NaverMap", "카메라 변경 - reson: $reason, animated: $animated")
             marker.position = LatLng(
                 // 현재 보이는 네이버맵의 정중앙 가운데로 마커 이동
                 naverMap.cameraPosition.target.latitude,
