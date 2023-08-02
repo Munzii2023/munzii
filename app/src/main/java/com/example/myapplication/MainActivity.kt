@@ -38,6 +38,9 @@ import retrofit2.Response
 import java.io.IOException
 import java.util.*
 import kotlin.properties.Delegates
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -184,6 +187,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "1",
             "100",
             "json",
+            "1.0",
             "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg=="
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
@@ -417,7 +421,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         // 카메라의 움직임에 대한 이벤트 리스너 인터페이스.
         naverMap.addOnCameraChangeListener { reason, animated ->
-            Log.i("NaverMap", "카메라 변경 - reson: $reason, animated: $animated")
+            //Log.i("NaverMap", "카메라 변경 - reson: $reason, animated: $animated")
             marker.position = LatLng(
                 // 현재 보이는 네이버맵의 정중앙 가운데로 마커 이동
                 naverMap.cameraPosition.target.latitude,
@@ -492,7 +496,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val station = firstItem
                 val marker_address = getAddress(marker.position.latitude, marker.position.longitude)
 
-
                 // stationFineDust 함수 사용
                 stationFineDust(station) { pm10value, pm25value ->
                     // 콜백으로 전달된 pm10value를 이용하여 InfoActivity를 시작
@@ -508,10 +511,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             true
         }
 
-
-
-
-        // MainActivity 화면의 임의의 곳을 클릭하면 InfoActivity를 종료하도록 처리
     }
 
 
@@ -530,9 +529,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     .toString()
                 val words = currentLocationAddress.split(" ")
 
-
                 addressResult = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
-
             }
 
         } catch (e: IOException) {

@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp"
-            android:visibility="gone">
+            >
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -53,60 +53,33 @@
                 android:layout_height="wrap_content"
                 android:text="알림 받을 상태 선택" />
 
-            <!-- 수치 설정을 위한 RadioGroup -->
-            <RadioGroup
-                android:id="@+id/notificationStatusRadioGroup"
+            <!-- 알림 받을 상태 선택을 위한 체크박스 -->
+            <LinearLayout
+                android:id="@+id/notificationStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <RadioGroup
-                    android:id="@+id/notificationBadStatusRadioGroup"
+                android:orientation="horizontal">
+                <CheckBox
+                    android:id="@+id/checkBoxGood"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <RadioButton
-                        android:id="@+id/radioButtonBad"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="나쁨" />
-                    <RadioButton
-                        android:id="@+id/radioButtonVeryBad"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="매우 나쁨" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="이거나 더 나쁠 때" />
-                </RadioGroup>
-                <RadioGroup
-                    android:id="@+id/notificationGoodStatusRadioGroup"
+                    android:text="좋음" />
+                <CheckBox
+                    android:id="@+id/checkBoxNormal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <RadioButton
-                        android:id="@+id/radioButtonNomal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="보통" />
-                    <RadioButton
-                        android:id="@+id/radioButtonGood"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="좋음" />
-                    <RadioButton
-                        android:id="@+id/radioButtonVeryGood"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="매우 좋음" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="이거나 더 좋을 때" />
-                </RadioGroup>
-            </RadioGroup>
+                    android:text="보통" />
+                <CheckBox
+                    android:id="@+id/checkBoxBad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="나쁨" />
+                <CheckBox
+                    android:id="@+id/checkBoxVeryBad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="매우 나쁨" />
+            </LinearLayout>
 
             <Button
                 android:id="@+id/saveButton"
