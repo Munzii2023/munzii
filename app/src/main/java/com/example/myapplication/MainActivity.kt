@@ -4,6 +4,7 @@ import MYModel
 import MyAModel
 import MyBModel
 import MySModel
+import PinItem
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.Intent
@@ -14,10 +15,12 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
+import com.example.myapplication.databinding.ActivityInfoBinding
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -37,6 +40,7 @@ import java.io.IOException
 import java.util.*
 import kotlin.properties.Delegates
 import kotlinx.coroutines.Dispatchers
+import org.opencv.android.OpenCVLoader
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -80,6 +84,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // SecondActivity로 이동하는 인텐트 시작
             val intent = Intent(this, SecondActivity::class.java)
             startActivity(intent)
+        }
+
+        if (OpenCVLoader.initDebug()) {
+            Log.d("tagLog", "OpenCV 됨")
+        } else {
+            Log.d("tagLog", "OpenCV 안됨")
         }
 
         // 네이버 지도
@@ -183,7 +193,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "1",
             "100",
             "json",
-            "1.0",
+            "1.1",
             "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg=="
         ) //call 객체에 초기화
         Log.d("mobileApp", "${call.request()}")
@@ -212,8 +222,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "json",
             "1",
             "1",
-            sidoName,
-            stationName
+            sidoName
         )
 
         try { // api에서 반환해주는 dmx, dmy(위도와 경도) 값을 이용해 측정소 위치 return
@@ -308,6 +317,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         return true
     }
+/*
+    private fun getPins(): List<PinItem> {
+
+        return ArrayList<PinItem>().apply {
+             반복문 {
+                val temp = PinItem(
+                //요소 1
+                //요소 2
+                //요소 3
+                //요소 4
+                //요소 5
+                )
+                add(temp)}
+        }
+
+    }*/
 
     override fun onMapReady(naverMap: NaverMap) { //네이버 지도의 이벤트를 처리하는 콜백함수
 
@@ -492,6 +517,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val station = firstItem
                 val marker_address = getAddress(marker.position.latitude, marker.position.longitude)
 
+
                 // stationFineDust 함수 사용
                 stationFineDust(station) { pm10value, pm25value ->
                     // 콜백으로 전달된 pm10value를 이용하여 InfoActivity를 시작
@@ -507,6 +533,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             true
         }
 
+        // MainActivity 화면의 임의의 곳을 클릭하면 InfoActivity를 종료하도록 처리
     }
 
 
@@ -584,5 +611,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onLowMemory()
         mapView.onLowMemory()
     }
+
 
 }

@@ -1,3 +1,9 @@
+import com.google.type.LatLng
+import ted.gun0912.clustering.TedClustering
+import ted.gun0912.clustering.clustering.TedClusterItem
+import ted.gun0912.clustering.geometry.TedLatLng
+import java.io.Serializable
+
 data class MYModel (val response: Response)// 측정소 - tm좌표
 data class Response (
     val body: Body,
@@ -114,8 +120,23 @@ data class BHeader (
     val resultCode: String
 )
 data class BMunziiItem (
-    val dmX : String ?= null,
-    val dmY : String ?= null,
+    val dmX : Double,
+    val dmY : Double,
     val addr : String ?= null,
     val stationName: String? = null
 )
+
+data class PinItem (
+    val dmX : Double,
+    val dmY : Double,
+    val pm10Value : String ?= null,
+    val pm25Value : String ?= null,
+    val sidoName : String ?= null,
+    val stationName: String? = null
+        ) : Serializable, TedClusterItem {
+    override fun getTedLatLng(): TedLatLng {
+        return TedLatLng(dmX, dmY)
+    }
+        }
+
+

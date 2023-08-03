@@ -57,7 +57,6 @@ interface Retrointerface4 { // 측정소 공공데이터 - 측정소 이름
         @Query("numOfRows") numOfRows: String?,
         @Query("pageNo") pageNo: String?,
         @Query("addr") addr: String?,
-        @Query("stationName") stationName: String?,
     ): Call<MyBModel>
 }
 
