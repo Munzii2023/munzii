@@ -228,18 +228,6 @@ class AlarmActivity : AppCompatActivity() {
                 saveFineDustInfoSettings()
             }, timeDifference)
 
-//                    // 사용자가 설정한 시간에 알림 예약하고, 알림을 표시하기 위해 showNotification() 함수를 호출합니다.
-//                    showNotification(fineDustStatus)
-
-//                    // 알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정
-//                    val infoIntent = Intent(this@AlarmActivity, InfoActivity::class.java)
-//                    intent.putExtra("pm10value", pm10value)
-//                    intent.putExtra("stationvalue", station)
-//                    intent.putExtra("addressvalue", savedLocation)
-//
-//                    val infoPendingIntent = PendingIntent.getActivity(
-//                        this@AlarmActivity, 0, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//                    )
         } else {
             // 사용자가 알림을 해제한 경우 이전에 예약한 알림 취소
             val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
@@ -277,8 +265,6 @@ class AlarmActivity : AppCompatActivity() {
                 showNotification(fineDustStatus, contentText)
 
 
-
-
             }
         }
     }
@@ -311,15 +297,6 @@ class AlarmActivity : AppCompatActivity() {
             .setStyle(NotificationCompat.BigTextStyle().bigText("$savedLocation - $contentText")) // 알림 내용 옆에 이미지 표시
             .setAutoCancel(true)
 
-        // 알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정 [지영님 ver표본]
-//        val infoIntent = Intent(this@AlarmActivity, InfoActivity::class.java)
-//        intent.putExtra("pm10value", pm10value)
-//        intent.putExtra("stationvalue", station)
-//        intent.putExtra("addressvalue", savedLocation)
-//
-//        val infoPendingIntent = PendingIntent.getActivity(
-//            this@AlarmActivity, 0, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//        )
 
         // 여기서부터 수정★ InfoActivity를 실행하기 위한 Intent 생성
         val infoIntent = Intent(this, InfoActivity::class.java)
@@ -367,6 +344,7 @@ class AlarmActivity : AppCompatActivity() {
 
     }
 
+    // 미세먼지 정보 들어가 있는 함수
     private fun getstationFineDustInfo(stationName: String, callback: (pm10: String) -> Unit) {
         val call: Call<MySModel> = MyApplication.retroInterface2.getRetrofit2(
             stationName, //측정소이름
@@ -452,8 +430,7 @@ class AlarmActivity : AppCompatActivity() {
                         alarmManager.cancel(it)
                     }
                 }
-                // 사용자가 설정한 시간에 알림 예약하고, 알림을 표시하기 위해 showNotification() 함수를 호출합니다.
-                // showNotification(fineDustStatus)
+
             }
         }
     }
@@ -568,6 +545,5 @@ class AlarmActivity : AppCompatActivity() {
         })
     }
 
-    // 미세먼지 정보 들어가 있는 함수
 
 }
