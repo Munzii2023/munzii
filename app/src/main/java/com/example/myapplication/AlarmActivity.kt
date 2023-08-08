@@ -157,7 +157,6 @@ class AlarmActivity : AppCompatActivity() {
 //            saveFineDustLevelSettings()
         }
 
-
     }
 
 
@@ -345,6 +344,7 @@ class AlarmActivity : AppCompatActivity() {
 
     }
 
+    // 미세먼지 정보 들어가 있는 함수
     private fun getstationFineDustInfo(stationName: String, callback: (pm10: String) -> Unit) {
         val call: Call<MySModel> = MyApplication.retroInterface2.getRetrofit2(
             stationName, //측정소이름
@@ -546,6 +546,5 @@ class AlarmActivity : AppCompatActivity() {
         })
     }
 
-    // 미세먼지 정보 들어가 있는 함수
 
 }

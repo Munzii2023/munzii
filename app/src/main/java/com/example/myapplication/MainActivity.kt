@@ -548,11 +548,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             address = geoCoder.getFromLocation(lat, lng, 1) as ArrayList<Address>
             if (address.size > 0) {
                 // 주소 받아오기
-                val currentLocationAddress = address[0].getAddressLine(0)
-                    .toString()
+                val currentLocationAddress = address[0].getAddressLine(0).toString()
                 val words = currentLocationAddress.split(" ")
 
-                addressResult = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
+                // 주소 데이터가 충분한지 확인 후 가공
+                if (words.size >= 5) {
+                    addressResult = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
+                } else {
+                    addressResult = currentLocationAddress
+                }
             }
 
         } catch (e: IOException) {
