@@ -4,18 +4,18 @@
     <!-- 아이콘 설정하기 -->
     <item
         android:id="@+id/item1"
-        android:icon="@android:drawable/ic_menu_share"
+        android:icon="@android:drawable/ic_menu_add"
         android:title=" 즐겨찾기"/>
     <item
         android:id="@+id/item2"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@android:drawable/ic_lock_idle_alarm"
         android:title="알람 설정"/>
     <item
         android:id="@+id/item3"
-        android:icon="@android:drawable/ic_menu_search"
+        android:icon="@android:drawable/ic_menu_info_details"
         android:title="환경 설정"/>
     <item
         android:id="@+id/item4"
-        android:icon="@android:drawable/ic_menu_add"
+        android:icon="@android:drawable/ic_menu_edit"
         android:title="로그인/회원가입"/>
 </menu>

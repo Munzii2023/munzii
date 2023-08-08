@@ -61,6 +61,13 @@ class AlarmActivity : AppCompatActivity() {
     private var tmY by Delegates.notNull<Double>()
     // 미세먼지 수치
     private var fineDustStatus: String = ""
+    // nullable한 String 변수 pm10value를 선언합니다.
+    private var pm10value: String? = null
+    // nullable한 String 변수 station을 선언합니다.
+    private var station: String = ""
+    // nullable한 String 변수 pm25value를 선언합니다.
+    private var pm25value: String? = null
+
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -250,13 +257,9 @@ class AlarmActivity : AppCompatActivity() {
 
         val savedLocation = sharedPreferences.getString("saved_location", "")
 
-        // saveFineDustInfoSettings() 함수 내부에서 선언하고 값 저장 ( 빨간색 오류만 해결하고 달라진게 없음)
-        var pm10value: String = ""
-        var station: String = ""
-
 
         findNearestStation { firstItem ->
-            val station = firstItem
+            station = firstItem
 
             // 네트워크 응답이나 기타 비동기적 작업에서 contentText를 가져옵니다.
             getstationFineDustInfo(station) { pm10value ->
@@ -327,9 +330,9 @@ class AlarmActivity : AppCompatActivity() {
         infoIntent.putExtra("contentText", contentText)
 
         // pm10value, pm25value, stationvalue, addressvalue 데이터를 인텐트에 추가
-//        infoIntent.putExtra("pm10value", pm10value) // pm10value 데이터 추가
-//        infoIntent.putExtra("pm25value", pm25value) // pm25value 데이터 추가
-//        infoIntent.putExtra("stationvalue", station) // stationvalue 데이터 추가
+        infoIntent.putExtra("pm10value", pm10value) // pm10value 데이터 추가
+        infoIntent.putExtra("pm25value", pm25value) // pm25value 데이터 추가
+        infoIntent.putExtra("stationvalue", station) // stationvalue 데이터 추가
         infoIntent.putExtra("addressvalue", savedLocation) // addressvalue 데이터 추가
 
         // 알림을 위한 PendingIntent 생성
@@ -362,6 +365,42 @@ class AlarmActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private fun getstationFineDustInfo(stationName: String, callback: (pm10: String) -> Unit) {
+        val call: Call<MySModel> = MyApplication.retroInterface2.getRetrofit2(
+            stationName, //측정소이름
+            "month",
+            "1",
+            "100",
+            "json",
+            "1.0",
+            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg=="
+        ) //call 객체에 초기화
+
+        call?.enqueue(object: retrofit2.Callback<MySModel> {
+            override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
+                if(response.isSuccessful) {
+                    pm10value= response.body()?.response?.body?.items?.get(0)?.pm10Value
+                    pm25value= response.body()?.response?.body?.items?.get(0)?.pm25Value
+
+                    if (!pm10value.isNullOrEmpty() && pm10value != "-") {
+                        Log.d("fineDust", "$pm10value")
+                        callback(pm10value.toString())
+                    } else {
+                        // pm10Value가 비어 있거나 하이픈을 포함한 경우를 처리합니다.
+                        Log.d("fineDust", "유효하지 않은 pm10Value: $pm10value")
+                        // 기본값이나 적절한 오류 메시지를 콜백에 전달할 수 있습니다.
+                        callback("N/A")
+                    }
+                    // Log.d("fineDust", "$pm10value")
+                    // callback(pm10value.toString())
+                }
+            }
+            override fun onFailure(call: Call<MySModel>, t: Throwable) {
+                Log.d("fineDust", "미세먼지 정보를 가져오지 못했습니다.")
+            }
+        })
     }
 
 
@@ -420,6 +459,7 @@ class AlarmActivity : AppCompatActivity() {
     }
 
 
+    // SharedPreferences에서 저장된 시간과 위치를 가져옴
     private fun displaySavedTimeAndLocation() {
         // SharedPreferences에서 저장된 시간과 위치를 가져옵니다
         val savedTime = sharedPreferences.getString("saved_time", "")
@@ -432,6 +472,7 @@ class AlarmActivity : AppCompatActivity() {
 
 
 
+    // 상단바 알림 채널 만듦
     private fun createNotificationChannel() {
         // Android 8.0 이상에서 알림 채널을 생성해야 함
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -480,6 +521,7 @@ class AlarmActivity : AppCompatActivity() {
     }
 
 
+    // 위도, 경도 좌표를 -> TM 좌표로 바꾸는 함수
     private fun getTm() {
         // 1. 사용자 입력 위치 정보를 위도, 경도 좌표로 변환
         val userLatLng = convertAddressToLatLng()
@@ -495,6 +537,7 @@ class AlarmActivity : AppCompatActivity() {
     }
 
 
+    // TM좌표를 기준으로 가까운 측정소 위치 잡아주는 함수
     private fun findNearestStation(onStationDustComplete: (String) -> Unit) {
         getTm()
         val call: Call<MYModel> = MyApplication.retroInterface.getRetrofit(
@@ -525,37 +568,6 @@ class AlarmActivity : AppCompatActivity() {
         })
     }
 
-    private fun getstationFineDustInfo(stationName: String, callback: (pm10: String) -> Unit) {
-        val call: Call<MySModel> = MyApplication.retroInterface2.getRetrofit2(
-            stationName, //측정소이름
-            "month",
-            "1",
-            "100",
-            "json",
-            "1.0",
-            "uItfMom3tDSQvZa3Xm2GwUrA5YidOSP4H1qHM/rkupqT9pT5TNa4zyQWdXFnbKlKSqBZsEqJtZrQfYYrPHAwgg=="
-        ) //call 객체에 초기화
+    // 미세먼지 정보 들어가 있는 함수
 
-        call?.enqueue(object: retrofit2.Callback<MySModel> {
-            override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
-                if(response.isSuccessful) {
-                    val pm10value= response.body()?.response?.body?.items?.get(0)?.pm10Value
-                    if (!pm10value.isNullOrEmpty() && pm10value != "-") {
-                        Log.d("fineDust", "$pm10value")
-                        callback(pm10value.toString())
-                    } else {
-                        // pm10Value가 비어 있거나 하이픈을 포함한 경우를 처리합니다.
-                        Log.d("fineDust", "유효하지 않은 pm10Value: $pm10value")
-                        // 기본값이나 적절한 오류 메시지를 콜백에 전달할 수 있습니다.
-                        callback("N/A")
-                    }
-                    // Log.d("fineDust", "$pm10value")
-                    // callback(pm10value.toString())
-                }
-            }
-            override fun onFailure(call: Call<MySModel>, t: Throwable) {
-                Log.d("fineDust", "미세먼지 정보를 가져오지 못했습니다.")
-            }
-        })
-    }
 }
