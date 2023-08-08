@@ -71,7 +71,7 @@
             android:id="@+id/main_drawer"
             android:layout_width="300dp"
             android:layout_height="match_parent"
-            android:background="#D0FDFC"
+            android:background="@color/white"
             android:text="Drawer Layout!!!"
             android:fitsSystemWindows="true"
             android:gravity="center"

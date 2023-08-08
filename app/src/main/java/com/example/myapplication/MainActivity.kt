@@ -383,37 +383,36 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             val sidoName = responseBody.response.body.items[i].sidoName
                             val pm10 = responseBody.response.body.items[i].pm10Value
                             mMarkerList[i] = Marker()
-//                            val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
-//                            if (coord != null) {
-//                                if (responseBody.response.body.items[i].pm10Value != null) {
-//                                    mMarkerList[i]?.width = 100
-//                                    mMarkerList[i]?.height = 100
-//                                    if (pm10!! <= 15.toString()) { //0~15 미세먼지 굿
-//                                        mMarkerList[i]?.position = coord
-//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_good)
-//                                        mMarkerList[i]?.map = naverMap
-//                                    }
-//                                    else if (pm10!! <= 35.toString() && pm10!! > 15.toString() ) { //15~35
-//                                        mMarkerList[i]?.position = coord
-//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_soso)
-//                                        mMarkerList[i]?.map = naverMap
-//                                    }
-//                                    else if (pm10!! <= 75.toString() && pm10!! > 35.toString() ) {// 35~75
-//                                        mMarkerList[i]?.position = coord
-//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_bad)
-//                                        mMarkerList[i]?.map = naverMap
-//                                    }
-//                                    else { //75~
-//                                        mMarkerList[i]?.position = coord
-//                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_terri)
-//                                        mMarkerList[i]?.map = naverMap
-//                                    }
-//                                }
-//                                else {
-//                                    ///null 이면 마커 안찍음
-//                                }
-//
-//                            }// 주석영역끝
+                            /*val coord = allOfStation(stationName.toString(),sidoName.toString()) //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
+                            if (coord != null) {
+                                if (responseBody.response.body.items[i].pm10Value != null) {
+                                    mMarkerList[i]?.width = 100
+                                    mMarkerList[i]?.height = 100
+                                    if (pm10!! <= 15.toString()) { //0~15 미세먼지 굿
+                                        mMarkerList[i]?.position = coord
+                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_good)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                    else if (pm10!! <= 35.toString() && pm10!! > 15.toString() ) { //15~35
+                                        mMarkerList[i]?.position = coord
+                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_soso)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                    else if (pm10!! <= 75.toString() && pm10!! > 35.toString() ) {// 35~75
+                                        mMarkerList[i]?.position = coord
+                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_bad)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                    else { //75~
+                                        mMarkerList[i]?.position = coord
+                                        mMarkerList[i]?.icon = OverlayImage.fromResource(R.drawable.marker_terri)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                }
+                                else {
+                                    ///null 이면 마커 안찍음
+                                }
+                            }// 주석영역끝 */
                             /* 마커에 클릭리스너 주기!!
                             val finalI = i
                             mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {

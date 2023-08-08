@@ -63,12 +63,11 @@ class AlarmActivity : AppCompatActivity() {
     private var fineDustStatus: String = ""
     // nullable한 String 변수 pm10value를 선언합니다.
     private var pm10value: String? = null
-
+    // nullable한 String 변수 station을 선언합니다.
+    private var station: String = ""
     // nullable한 String 변수 pm25value를 선언합니다.
     private var pm25value: String? = null
 
-    // nullable한 String 변수 station을 선언합니다.
-    private var station: String = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -156,6 +155,7 @@ class AlarmActivity : AppCompatActivity() {
 //            saveFineDustInfoSettings()
 //            saveFineDustLevelSettings()
         }
+
 
     }
 
@@ -298,7 +298,7 @@ class AlarmActivity : AppCompatActivity() {
             .setAutoCancel(true)
 
 
-        //★ InfoActivity를 실행하기 위한 Intent 생성
+        // 여기서부터 수정★ InfoActivity를 실행하기 위한 Intent 생성
         val infoIntent = Intent(this, InfoActivity::class.java)
 
 
@@ -360,14 +360,14 @@ class AlarmActivity : AppCompatActivity() {
             override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
                 if(response.isSuccessful) {
                     pm10value= response.body()?.response?.body?.items?.get(0)?.pm10Value
-                    pm25value = response.body()?.response?.body?.items?.get(0)?.pm25Value
+                    pm25value= response.body()?.response?.body?.items?.get(0)?.pm25Value
 
                     if (!pm10value.isNullOrEmpty() && pm10value != "-") {
-                        Log.d("fineDust", "$pm10value: $pm10value, pm25value: $pm25value")
+                        Log.d("fineDust", "$pm10value")
                         callback(pm10value.toString())
                     } else {
                         // pm10Value가 비어 있거나 하이픈을 포함한 경우를 처리합니다.
-                        Log.d("fineDust", "유효하지 않은 pm10Value: $pm10value, pm25value: $pm25value")
+                        Log.d("fineDust", "유효하지 않은 pm10Value: $pm10value")
                         // 기본값이나 적절한 오류 메시지를 콜백에 전달할 수 있습니다.
                         callback("N/A")
                     }
@@ -430,8 +430,7 @@ class AlarmActivity : AppCompatActivity() {
                         alarmManager.cancel(it)
                     }
                 }
-                // 사용자가 설정한 시간에 알림 예약하고, 알림을 표시하기 위해 showNotification() 함수를 호출합니다.
-                // showNotification(fineDustStatus)
+
             }
         }
     }
