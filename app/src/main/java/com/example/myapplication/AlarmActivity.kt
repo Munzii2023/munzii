@@ -14,6 +14,7 @@ import android.graphics.Color
 import android.location.Geocoder
 import android.util.Log
 import android.os.Build
+//import android.os.Build.VERSION_CODES.R
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -206,13 +207,14 @@ class AlarmActivity : AppCompatActivity() {
             handler.postDelayed({
                 // 사용자가 설정한 시간에 알림 예약
                 val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-//                val intent = Intent(this, AlarmActivity::class.java)
-//                intent.action = "ACTION_SHOW_NOTIFICATION"
-//                val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-//                alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
                 val intent = Intent(this, MainActivity::class.java) // 원하는 활동으로 MainActivity를 변경
                 val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
+
+                // val intent = Intent(this, AlarmActivity::class.java)
+                // intent.action = "ACTION_SHOW_NOTIFICATION"
+                // val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+                // alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
 
 
                 // 미세먼지 정보 저장 함수 호출
@@ -538,8 +540,17 @@ class AlarmActivity : AppCompatActivity() {
             override fun onResponse(call: Call<MySModel>, response: Response<MySModel>) {
                 if(response.isSuccessful) {
                     val pm10value= response.body()?.response?.body?.items?.get(0)?.pm10Value
-                    Log.d("fineDust", "$pm10value")
-                    callback(pm10value.toString())
+                    if (!pm10value.isNullOrEmpty() && pm10value != "-") {
+                        Log.d("fineDust", "$pm10value")
+                        callback(pm10value.toString())
+                    } else {
+                        // pm10Value가 비어 있거나 하이픈을 포함한 경우를 처리합니다.
+                        Log.d("fineDust", "유효하지 않은 pm10Value: $pm10value")
+                        // 기본값이나 적절한 오류 메시지를 콜백에 전달할 수 있습니다.
+                        callback("N/A")
+                    }
+                    // Log.d("fineDust", "$pm10value")
+                    // callback(pm10value.toString())
                 }
             }
             override fun onFailure(call: Call<MySModel>, t: Throwable) {
