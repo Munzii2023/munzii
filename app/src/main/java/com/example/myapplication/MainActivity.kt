@@ -62,8 +62,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     //현재 TM 좌표
     private var tmX by Delegates.notNull<Double>()
     private var tmY by Delegates.notNull<Double>()
-    //현재 위치 저장
+    //처음 위치 저장
     private lateinit var initialPosition : LatLng
+    // activity 끝나기 전 마지막 위치 저장
+    private var latelyPosition : LatLng = LatLng(37.5670135, 126.9783740)
     private var lat by Delegates.notNull<Double>()
     private var lon by Delegates.notNull<Double>()
 
@@ -271,6 +273,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onResume() {
         super.onResume()
         mapView.onResume()
+        if (!::marker.isInitialized) {
+            return
+        }
+        marker.position = latelyPosition
         updateNavigationHeader()
     }
 
@@ -337,13 +343,17 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onMapReady(naverMap: NaverMap) { //네이버 지도의 이벤트를 처리하는 콜백함수
 
         // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
-        // 지도상에 마커 표시
         marker = Marker()
+        // 지도상에 마커 표시
         marker.position = LatLng( //마커가 위치한 좌표!!!!! => 여기 기준으로 주소 설정할 수 있도록 해야함
             naverMap.cameraPosition.target.latitude,
             naverMap.cameraPosition.target.longitude
         )
         initialPosition = LatLng( // 초기 Latlng값 저장
+            naverMap.cameraPosition.target.latitude,
+            naverMap.cameraPosition.target.longitude
+        )
+        latelyPosition= LatLng( // 초기화
             naverMap.cameraPosition.target.latitude,
             naverMap.cameraPosition.target.longitude
         )
@@ -455,6 +465,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 naverMap.cameraPosition.target.latitude,
                 naverMap.cameraPosition.target.longitude
             )
+            latelyPosition = marker.position
         }
 
         var currentLocation: Location?
@@ -498,6 +509,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
                     // 빨간색 마커 현재위치로 변경
                     marker.position = LatLng(
+                        naverMap.cameraPosition.target.latitude,
+                        naverMap.cameraPosition.target.longitude
+                    )
+
+                    latelyPosition = LatLng(
                         naverMap.cameraPosition.target.latitude,
                         naverMap.cameraPosition.target.longitude
                     )
@@ -547,11 +563,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             address = geoCoder.getFromLocation(lat, lng, 1) as ArrayList<Address>
             if (address.size > 0) {
                 // 주소 받아오기
-                val currentLocationAddress = address[0].getAddressLine(0)
-                    .toString()
+                val currentLocationAddress = address[0].getAddressLine(0).toString()
                 val words = currentLocationAddress.split(" ")
 
-                addressResult = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
+                // 주소 데이터가 충분한지 확인 후 가공
+                if (words.size >= 5) {
+                    addressResult = words[1] + " " + words[2] + " " + words[3] + " " + words[4]
+                } else {
+                    addressResult = currentLocationAddress
+                }
             }
 
         } catch (e: IOException) {
