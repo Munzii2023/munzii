@@ -23,10 +23,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:backgroundTint="#FF0000"
+            android:backgroundTint="#FF8888"
             android:text="로그아웃"
             android:textColor="@color/white"
             android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
             android:visibility="gone" />
 
         <Button
@@ -34,10 +38,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#FFC107"
+            android:backgroundTint="#FFFF99"
             android:text="회원가입"
             android:textColor="@color/white"
             android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
             android:visibility="gone" />
 
         <Button
@@ -45,10 +53,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#008000"
+            android:backgroundTint="#88FF88"
             android:text="구글인증"
             android:textColor="@color/white"
             android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
             android:visibility="gone" />
 
         <EditText
@@ -88,10 +100,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#FF0000"
+            android:backgroundTint="#FF8888"
             android:text="가입"
             android:textColor="@color/white"
             android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
             android:visibility="gone" />
 
         <Button
@@ -99,10 +115,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#0000FF"
+            android:backgroundTint="#8888FF"
             android:text="로그인"
             android:textColor="@color/white"
             android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
             android:visibility="gone" />
     </LinearLayout>
 

@@ -12,6 +12,7 @@ import com.example.myapplication.databinding.ActivityAuthBinding
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.button.MaterialButton
 import com.google.android.play.integrity.internal.l
 import com.google.firebase.auth.GoogleAuthProvider
 import java.util.*
@@ -27,6 +28,7 @@ class AuthActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         changeVisibility(intent.getStringExtra("data").toString())
+
 
         binding.goSignInBtn.setOnClickListener{
             // 회원가입

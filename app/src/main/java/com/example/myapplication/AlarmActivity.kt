@@ -298,7 +298,7 @@ class AlarmActivity : AppCompatActivity() {
             .setAutoCancel(true)
 
 
-        // 여기서부터 수정★ InfoActivity를 실행하기 위한 Intent 생성
+        // ★ InfoActivity를 실행하기 위한 Intent 생성
         val infoIntent = Intent(this, InfoActivity::class.java)
 
 
