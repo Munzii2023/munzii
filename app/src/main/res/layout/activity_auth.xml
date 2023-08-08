@@ -15,7 +15,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="로그인하거나 회원가입 해주세요."/>
+            android:text="로그인하거나 회원가입 해주세요."
+            android:textColor="@android:color/black"/>
 
         <Button
             android:id="@+id/logoutBtn"
@@ -28,13 +29,12 @@
             android:textStyle="bold"
             android:visibility="gone" />
 
-
         <Button
             android:id="@+id/goSignInBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#FF0000"
+            android:backgroundTint="#FFC107"
             android:text="회원가입"
             android:textColor="@color/white"
             android:textStyle="bold"
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#FF0000"
+            android:backgroundTint="#008000"
             android:text="구글인증"
             android:textColor="@color/white"
             android:textStyle="bold"
@@ -99,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#FF0000"
+            android:backgroundTint="#0000FF"
             android:text="로그인"
             android:textColor="@color/white"
             android:textStyle="bold"

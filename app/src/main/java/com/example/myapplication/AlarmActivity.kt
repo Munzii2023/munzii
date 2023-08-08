@@ -148,17 +148,6 @@ class AlarmActivity : AppCompatActivity() {
 //            saveFineDustLevelSettings()
         }
 
-//        // Check if the activity is triggered by the alarm
-//        if (intent?.action == "ACTION_SHOW_NOTIFICATION") {
-//            // Show the notification
-//
-//            showNotification(fineDustStatus, contentText)
-//
-//
-//            // Finish the activity immediately to prevent it from being shown
-//            finish()
-//        }
-
 
     }
 
@@ -217,10 +206,14 @@ class AlarmActivity : AppCompatActivity() {
             handler.postDelayed({
                 // 사용자가 설정한 시간에 알림 예약
                 val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
-                val intent = Intent(this, AlarmActivity::class.java)
-                intent.action = "ACTION_SHOW_NOTIFICATION"
+//                val intent = Intent(this, AlarmActivity::class.java)
+//                intent.action = "ACTION_SHOW_NOTIFICATION"
+//                val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+//                alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
+                val intent = Intent(this, MainActivity::class.java) // 원하는 활동으로 MainActivity를 변경
                 val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
                 alarmManager.setExact(AlarmManager.RTC_WAKEUP, selectedTimeInMillis, pendingIntent)
+
 
                 // 미세먼지 정보 저장 함수 호출
                 saveFineDustInfoSettings()
@@ -255,6 +248,11 @@ class AlarmActivity : AppCompatActivity() {
 
         val savedLocation = sharedPreferences.getString("saved_location", "")
 
+        // saveFineDustInfoSettings() 함수 내부에서 선언하고 값 저장 ( 빨간색 오류만 해결하고 달라진게 없음)
+        var pm10value: String = ""
+        var station: String = ""
+
+
         findNearestStation { firstItem ->
             val station = firstItem
 
@@ -278,12 +276,6 @@ class AlarmActivity : AppCompatActivity() {
 
             }
         }
-    }
-
-    private fun onNotificationContentReady(contentText: String) {
-        // 미세먼지 정보가 준비된 후, 이 함수가 호출됩니다.
-        // contentText를 이용하여 showNotification() 함수를 호출하면 됩니다.
-        showNotification(fineDustStatus, contentText)
     }
 
     private fun showNotification(fineDustStatus: String, contentText: String) {
@@ -313,6 +305,38 @@ class AlarmActivity : AppCompatActivity() {
             .setLargeIcon(BitmapFactory.decodeResource(resources, imageResId))
             .setStyle(NotificationCompat.BigTextStyle().bigText("$savedLocation - $contentText")) // 알림 내용 옆에 이미지 표시
             .setAutoCancel(true)
+
+        // 알림을 클릭했을 때, InfoActivity로 이동하도록 PendingIntent 설정 [지영님 ver표본]
+//        val infoIntent = Intent(this@AlarmActivity, InfoActivity::class.java)
+//        intent.putExtra("pm10value", pm10value)
+//        intent.putExtra("stationvalue", station)
+//        intent.putExtra("addressvalue", savedLocation)
+//
+//        val infoPendingIntent = PendingIntent.getActivity(
+//            this@AlarmActivity, 0, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+//        )
+
+        // 여기서부터 수정★ InfoActivity를 실행하기 위한 Intent 생성
+        val infoIntent = Intent(this, InfoActivity::class.java)
+
+
+
+        // 필요한 데이터를 InfoActivity로 전달
+        infoIntent.putExtra("contentText", contentText)
+
+        // pm10value, pm25value, stationvalue, addressvalue 데이터를 인텐트에 추가
+//        infoIntent.putExtra("pm10value", pm10value) // pm10value 데이터 추가
+//        infoIntent.putExtra("pm25value", pm25value) // pm25value 데이터 추가
+//        infoIntent.putExtra("stationvalue", station) // stationvalue 데이터 추가
+        infoIntent.putExtra("addressvalue", savedLocation) // addressvalue 데이터 추가
+
+        // 알림을 위한 PendingIntent 생성
+        val infoPendingIntent = PendingIntent.getActivity(
+            this, 0, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // 알림 빌더의 내용 Intent 설정
+        notificationBuilder.setContentIntent(infoPendingIntent)
 
         // 권한 체크
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
