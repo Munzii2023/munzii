@@ -52,9 +52,10 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
         setContentView(binding.root)
 
         binding.btnPublicData.setOnClickListener {
-            // SecondActivity로 이동하는 인텐트 시작
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            // SecondActivity를 종료하여 MainActivity로 이동
+            //val intent = Intent(this, MainActivity::class.java)
+            //startActivity(intent)
+            finish()
         }
 
         // 네이버 지도

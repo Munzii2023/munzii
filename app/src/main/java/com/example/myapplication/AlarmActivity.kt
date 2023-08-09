@@ -68,8 +68,6 @@ class AlarmActivity : AppCompatActivity() {
     // nullable한 String 변수 pm25value를 선언합니다.
     private var pm25value: String? = null
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_alarm)
@@ -148,8 +146,9 @@ class AlarmActivity : AppCompatActivity() {
             Toast.makeText(this, "저장되었습니다", Toast.LENGTH_SHORT).show()
 
             // MainActivity로 화면 전환을 위한 코드
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            //val intent = Intent(this, MainActivity::class.java)
+            //startActivity(intent)
+            finish() // MainActivity를 새로 열지 않고 AlarmActivity를 종료하도록 설계했습니다.
 
             // 사용자가 설정한 시간에 알림 예약하고, 미세먼지 정보를 가져오기 위해 saveFineDustInfoSettings() 함수를 호출합니다.
 //            saveFineDustInfoSettings()
@@ -301,8 +300,6 @@ class AlarmActivity : AppCompatActivity() {
         // ★ InfoActivity를 실행하기 위한 Intent 생성
         val infoIntent = Intent(this, InfoActivity::class.java)
 
-
-
         // 필요한 데이터를 InfoActivity로 전달
         infoIntent.putExtra("contentText", contentText)
 
@@ -314,8 +311,7 @@ class AlarmActivity : AppCompatActivity() {
 
         // 알림을 위한 PendingIntent 생성
         val infoPendingIntent = PendingIntent.getActivity(
-            this, 0, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+            this, 0, infoIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
 
         // 알림 빌더의 내용 Intent 설정
         notificationBuilder.setContentIntent(infoPendingIntent)
@@ -396,6 +392,7 @@ class AlarmActivity : AppCompatActivity() {
                     in 0..15 -> "좋음"
                     in 16..35 -> "보통"
                     in 36..75 -> "나쁨"
+                    //null -> "현재 측정할 수 없습니다!"
                     else -> "매우 나쁨"
                 }
 

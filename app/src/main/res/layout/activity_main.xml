@@ -18,6 +18,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <!--drawer bar & 검색창-->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -28,6 +29,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="end"
+                    android:layout_marginTop="10dp"
                     android:layout_marginLeft="10dp"
                     android:gravity="right"
                     android:background="@drawable/baseline_dehaze_24"/>
@@ -55,12 +57,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" >
 
+                <!--
                 <Button
                     android:id="@+id/btnDeliveryVehicle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="8dp"
-                    android:text="-> 택배 차량" />
+                    android:background="@color/white"
+                    android:text="-> 택배 차량 지도" />
+                    -->
+
+                <ImageButton
+                    android:id="@+id/btnDeliveryVehicle"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_margin="10dp"
+                    android:textStyle="bold"
+                    app:elevation="10dp"
+                    android:background="@color/white"
+                    android:src="@drawable/baseline_directions_car_24" />
+
             </com.naver.maps.map.MapView>
 
         </LinearLayout>
