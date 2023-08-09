@@ -239,7 +239,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             "json",
             "1",
             "1",
-            sidoName
+            sidoName,
+            stationName
         )
 
         try { // api에서 반환해주는 dmx, dmy(위도와 경도) 값을 이용해 측정소 위치 return
