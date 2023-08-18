@@ -40,7 +40,6 @@ import java.io.IOException
 import java.util.*
 import kotlin.properties.Delegates
 import kotlinx.coroutines.Dispatchers
-import org.opencv.android.OpenCVLoader
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -88,12 +87,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             // SecondActivity로 이동하는 인텐트 시작
             val intent = Intent(this, SecondActivity::class.java)
             startActivity(intent)
-        }
-
-        if (OpenCVLoader.initDebug()) {
-            Log.d("tagLog", "OpenCV 됨")
-        } else {
-            Log.d("tagLog", "OpenCV 안됨")
         }
 
         // 네이버 지도
