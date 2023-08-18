@@ -327,6 +327,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     startActivity(intent)
                 }
             }
+            R.id.item5 -> {
+                if (item.itemId === R.id.item5) {
+                    val intent = Intent(this, PhotoActivity::class.java)
+                    startActivity(intent)
+                }
+            }
         }
         return true
     }
@@ -428,7 +434,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         })
     }
 
-        override fun onMapReady(naverMap: NaverMap) { //네이버 지도의 이벤트를 처리하는 콜백함수
+    override fun onMapReady(naverMap: NaverMap) { //네이버 지도의 이벤트를 처리하는 콜백함수
 
         // NaverMap 객체 받아서 NaverMap 객체에 위치 소스 지정
         marker = Marker()
@@ -452,7 +458,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         naverMap.locationSource = mLocationSource
         naverMap.setLocationSource(mLocationSource)
 
-            addMarkers()
+        addMarkers()
 
         // 현재 위치 버튼 기능
         naverMap.uiSettings.isLocationButtonEnabled = true
