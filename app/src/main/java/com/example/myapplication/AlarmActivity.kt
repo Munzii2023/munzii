@@ -154,10 +154,7 @@ class AlarmActivity : AppCompatActivity() {
 //            saveFineDustInfoSettings()
 //            saveFineDustLevelSettings()
         }
-
-
     }
-
 
     private fun saveNotificationSettings() {
         // 사용자가 설정한 시간과 위치를 SharedPreferences에 저장
