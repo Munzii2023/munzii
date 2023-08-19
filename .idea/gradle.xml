@@ -10,7 +10,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/OpenCVsdk" />
+            <option value="$PROJECT_DIR$/OepnCV" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
