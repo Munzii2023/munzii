@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -30,6 +31,7 @@ class PhotoActivity : AppCompatActivity() {
     private var photoImageView: ImageView? = null
     private var photoDescription: TextView? = null
     private lateinit var tflite: Interpreter
+    private lateinit var imageCaptureUri: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +60,7 @@ class PhotoActivity : AppCompatActivity() {
             } else {
                 val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
                 val url = "tmp_" + System.currentTimeMillis().toString() + ".jpg"
-                val imageCaptureUri = FileProvider.getUriForFile(
+                imageCaptureUri = FileProvider.getUriForFile(
                     this,
                     "${applicationContext.packageName}.fileprovider",
                     File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), url)
@@ -129,7 +131,14 @@ class PhotoActivity : AppCompatActivity() {
             resultTextView.visibility = View.VISIBLE
         }
         else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            val imageBitmap = data?.extras?.get("data") as Bitmap
+            val imageBitmap = if (data?.hasExtra("data") == true) {
+                data.extras?.get("data") as Bitmap
+            } else {
+                val imageUri = imageCaptureUri
+                val imageStream = contentResolver.openInputStream(imageUri!!)
+                BitmapFactory.decodeStream(imageStream)
+            }
+
             photoImageView?.setImageBitmap(imageBitmap)
             photoImageView?.visibility = View.VISIBLE
             photoDescription?.text = "찍은 사진을 선택했습니다."
@@ -140,6 +149,7 @@ class PhotoActivity : AppCompatActivity() {
             resultTextView.text = "결과: $classificationResult"
             resultTextView.visibility = View.VISIBLE
         }
+
     }
 
 
