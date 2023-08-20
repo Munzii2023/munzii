@@ -83,29 +83,6 @@
 
     </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="bottom">
-        <TextView
-            android:id="@+id/header_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="데이터는 실시간 관측된 자료이며 측정소 현지 사정이나 데이터의 수신상태에 따라 미수신 될 수 있음"
-            android:textSize="10dp"
-            android:textColor="#D3D3D3"/>
-
-        <TextView
-            android:id="@+id/header_text2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="출처 : 에어코리아/한국환경공단"
-            android:textSize="10dp"
-            android:textColor="#D3D3D3"/>
-
-    </LinearLayout>
-
         <com.google.android.material.navigation.NavigationView
             android:id="@+id/main_drawer"
             android:layout_width="300dp"

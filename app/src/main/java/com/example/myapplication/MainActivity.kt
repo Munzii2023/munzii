@@ -633,6 +633,4 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         super.onLowMemory()
         mapView.onLowMemory()
     }
-
-
 }
