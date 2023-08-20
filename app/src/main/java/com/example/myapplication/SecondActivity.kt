@@ -199,8 +199,65 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
         naverMap.locationTrackingMode = LocationTrackingMode.Follow
 
         // 권한확인. 결과는 onRequestPermissionsResult 콜백 매서드 호출
-        ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE);
+        ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_REQUEST_CODE)
 
+
+        //마커 위치 근방의 택배차량 미세먼지 정보(Bounds를 설정하고 해당 영역 내의 데이터만 가져오는 코드를 작성)
+
+        // pm10value를 이용하여 InfoActivity를 시작
+        naverMap.setOnMapClickListener { point, coord ->
+            // 클릭한 위치의 위도와 경도 정보를 얻음
+            val latitude = coord.latitude
+            val longitude = coord.longitude
+
+            //api 통신을 통해 pmvalue, 택배차량에 부착한 기기정보를 얻어오기
+            val pm10value = "13"
+            val pm25value = "21"
+            val stationvalue = "rasberry_2"
+
+            // 클릭한 위치의 주소 정보(경/위도 => 한글 주소)
+            val click_address = getAddress(latitude, longitude)
+
+            //클릭한 위치에 마커 띄우고, infoactivity 소환 | 택배 차량 데이터 없으면 없다 띄우기
+            if (pm10value != null) {
+                val marker = Marker()
+                marker?.width = 100
+                marker?.height = 100
+                if (pm10value!! <= 15.toString()) { //0~15 미세먼지 굿
+                    marker?.position = coord
+                    marker?.icon =
+                        OverlayImage.fromResource(R.drawable.marker_good)
+                    marker?.map = naverMap
+                } else if (pm10value!! <= 35.toString() && pm10value!! > 15.toString()) { //15~35
+                    marker?.position = coord
+                    marker?.icon =
+                        OverlayImage.fromResource(R.drawable.marker_soso)
+                    marker?.map = naverMap
+                } else if (pm10value!! <= 75.toString() && pm10value!! > 35.toString()) {// 35~75
+                    marker?.position = coord
+                    marker?.icon =
+                        OverlayImage.fromResource(R.drawable.marker_bad)
+                    marker?.map = naverMap
+                } else { //75~
+                    marker?.position = coord
+                    marker?.icon =
+                        OverlayImage.fromResource(R.drawable.marker_terri)
+                    marker?.map = naverMap
+                }
+            } else {
+                ///null 이면 alert 또는 toast로 정보 없다고 말해주기
+            }
+
+            val intent = Intent(this@SecondActivity, InfoActivity::class.java)
+            intent.putExtra("pm10value", pm10value) //api에서 pm10 불러와서 put
+            intent.putExtra("pm25value", pm25value) //api에서 pm25 불러와서 put
+            intent.putExtra("stationvalue", stationvalue) // 택배 차량 고유번호
+            intent.putExtra("addressvalue", click_address) //클릭 위치
+
+            startActivity(intent)
+
+            true
+        }
 
         /* val cameraPosition = CameraPosition(
             LatLng(37.65178832823347, 127.01614801495204), //위치 지정
