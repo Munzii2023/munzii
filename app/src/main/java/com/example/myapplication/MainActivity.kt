@@ -256,6 +256,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     private suspend fun fetchStationCoordinatesAsync(stationName: String, sidoName: String): LatLng? {
         return withContext(Dispatchers.IO) {
+
             fetchStationCoordinates(stationName, sidoName)
         }
     }
@@ -551,8 +552,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             true
         }
-
-        // MainActivity 화면의 임의의 곳을 클릭하면 InfoActivity를 종료하도록 처리
     }
 
 
