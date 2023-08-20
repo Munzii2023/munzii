@@ -336,22 +336,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         return true
     }
-/*
-    private fun getPins(): List<PinItem> {
 
-        return ArrayList<PinItem>().apply {
-             반복문 {
-                val temp = PinItem(
-                //요소 1
-                //요소 2
-                //요소 3
-                //요소 4
-                //요소 5
-                )
-                add(temp)}
-        }
-
-    }*/
 
     private fun addMarkers() {
         // 다중 마커

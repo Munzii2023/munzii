@@ -1,7 +1,9 @@
 package com.example.myapplication
 
 import android.app.Activity
+import android.app.Instrumentation.ActivityResult
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.provider.MediaStore
@@ -12,6 +14,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.R
 import android.net.Uri
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
 import java.nio.ByteBuffer
@@ -35,12 +40,23 @@ class PhotoActivity : AppCompatActivity() {
         val galleryButton = findViewById<Button>(R.id.galleryButton)
 
         takePhotoButton.setOnClickListener {
-            val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (takePictureIntent.resolveActivity(packageManager) != null) {
-                startActivityForResult(
-                    takePictureIntent,
-                    REQUEST_IMAGE_CAPTURE
+            val cameraPermissionCheck = ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.CAMERA
+            )
+
+            if (cameraPermissionCheck != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(android.Manifest.permission.CAMERA),
+                    1000
                 )
+            } else {
+                Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+                    takePictureIntent.resolveActivity(packageManager)?.also {
+                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+                    }
+                }
             }
         }
 
@@ -52,6 +68,8 @@ class PhotoActivity : AppCompatActivity() {
             startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK)
         }
     }
+
+
 
     //모델 파일 로드하여 bytebuffer로 변환
     private fun loadModelFile(): ByteBuffer {
@@ -97,6 +115,19 @@ class PhotoActivity : AppCompatActivity() {
             val resultTextView = findViewById<TextView>(R.id.resultTextView)
             resultTextView.text = "결과: $classificationResult"
             resultTextView.visibility = View.VISIBLE
+        }
+        else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
+            val selectedImageUri: Uri? = data?.data
+            val imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImageUri)
+
+            photoImageView?.setImageBitmap(imageBitmap)
+            photoImageView?.visibility = View.VISIBLE
+            photoDescription?.text = "찍은 사진을 선택했습니다."
+            photoDescription?.visibility = View.VISIBLE
+
+            val classificationResult = classifyImage(imageBitmap)
+            val resultTextView = findViewById<TextView>(R.id.resultTextView)
+            resultTextView.text = "결과: $classificationResult"
         }
     }
 
