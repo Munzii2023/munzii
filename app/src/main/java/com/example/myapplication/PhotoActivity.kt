@@ -1,27 +1,30 @@
 package com.example.myapplication
 
 import android.app.Activity
-import android.app.Instrumentation.ActivityResult
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplication.R
-import android.net.Uri
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import org.tensorflow.lite.Interpreter
+import java.io.File
 import java.io.FileInputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.channels.FileChannel
+
 
 class PhotoActivity : AppCompatActivity() {
     private var photoImageView: ImageView? = null
@@ -39,6 +42,7 @@ class PhotoActivity : AppCompatActivity() {
         val takePhotoButton = findViewById<Button>(R.id.takePhotoButton)
         val galleryButton = findViewById<Button>(R.id.galleryButton)
 
+
         takePhotoButton.setOnClickListener {
             val cameraPermissionCheck = ContextCompat.checkSelfPermission(
                 this,
@@ -52,13 +56,21 @@ class PhotoActivity : AppCompatActivity() {
                     1000
                 )
             } else {
-                Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
-                    takePictureIntent.resolveActivity(packageManager)?.also {
-                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
-                    }
-                }
+                val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                val url = "tmp_" + System.currentTimeMillis().toString() + ".jpg"
+                val imageCaptureUri = FileProvider.getUriForFile(
+                    this,
+                    "${applicationContext.packageName}.fileprovider",
+                    File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), url)
+                )
+
+                intent.putExtra(MediaStore.EXTRA_OUTPUT, imageCaptureUri)
+                startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
             }
         }
+
+
+
 
         galleryButton.setOnClickListener {
             val pickPhotoIntent = Intent(
@@ -117,9 +129,7 @@ class PhotoActivity : AppCompatActivity() {
             resultTextView.visibility = View.VISIBLE
         }
         else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
-            val selectedImageUri: Uri? = data?.data
-            val imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImageUri)
-
+            val imageBitmap = data?.extras?.get("data") as Bitmap
             photoImageView?.setImageBitmap(imageBitmap)
             photoImageView?.visibility = View.VISIBLE
             photoDescription?.text = "찍은 사진을 선택했습니다."
@@ -128,6 +138,7 @@ class PhotoActivity : AppCompatActivity() {
             val classificationResult = classifyImage(imageBitmap)
             val resultTextView = findViewById<TextView>(R.id.resultTextView)
             resultTextView.text = "결과: $classificationResult"
+            resultTextView.visibility = View.VISIBLE
         }
     }
 
