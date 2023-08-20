@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,53 +16,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="로그인하거나 회원가입 해주세요."
+            android:gravity="center"
             android:textColor="@android:color/black"/>
 
-        <Button
-            android:id="@+id/logoutBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:backgroundTint="#FF8888"
-            android:text="로그아웃"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:shadowColor="#000000"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="2"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/goSignInBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:backgroundTint="#FFFF99"
-            android:text="회원가입"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:shadowColor="#000000"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="2"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/googleLoginBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:backgroundTint="#88FF88"
-            android:text="구글인증"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:shadowColor="#000000"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="2"
-            android:visibility="gone" />
-
+        <!--edittext-->
         <EditText
             android:id="@+id/authEmailEditView"
             android:layout_width="match_parent"
@@ -71,7 +28,6 @@
             android:hint="이메일"
             android:inputType="textEmailAddress"
             android:visibility= "gone"/>
-
         <EditText
             android:id="@+id/authPasswordEditView"
             android:layout_width="match_parent"
@@ -95,12 +51,43 @@
             android:hint="기기 ID"
             android:visibility= "gone"/>
 
+        <!--로그인 버튼-->
+        <Button
+            android:id="@+id/logoutBtn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/munzii_blue"
+            android:text="로그아웃"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/loginBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:backgroundTint="@color/munzii_blue"
+            android:text="로그인"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:shadowColor="#000000"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
+            android:visibility="gone"/>
+
         <Button
             android:id="@+id/signBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#FF8888"
+            android:backgroundTint="@color/munzii_blue"
             android:text="가입"
             android:textColor="@color/white"
             android:textStyle="bold"
@@ -110,20 +97,159 @@
             android:shadowRadius="2"
             android:visibility="gone" />
 
+        <!--sns 가입-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="30dp">
+            <View
+                android:id="@+id/authview3"
+                android:layout_width="30dp"
+                android:layout_height="1dp"
+                android:background="#D3D3D3"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/authSNStext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="또는 SNS 계정으로 로그인하기"
+                android:gravity="center"
+                android:textColor="#808080"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+            <View
+                android:id="@+id/authview4"
+                android:layout_width="30dp"
+                android:layout_height="1dp"
+                android:layout_centerInParent="true"
+                android:background="#D3D3D3"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:visibility="gone" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/googleLoginBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/googlelogo_removebg"
+                app:civ_border_color="@color/white"
+                app:civ_border_overlay="true"
+                app:civ_border_width="5dp"
+                app:civ_circle_background_color="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="10dp"
+                android:shadowColor="#000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="2"
+                android:visibility="gone"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/naverLoginBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/naverlogo"
+                app:civ_border_color="@color/white"
+                app:civ_border_overlay="true"
+                app:civ_border_width="5dp"
+                app:civ_circle_background_color="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="10dp"
+                android:shadowColor="#000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="2"
+                android:visibility="gone"/>
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/kakaoLoginBtn"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/kakaologo"
+                app:civ_border_color="@color/white"
+                app:civ_border_overlay="true"
+                app:civ_border_width="5dp"
+                app:civ_circle_background_color="@color/white"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="10dp"
+                android:shadowColor="#000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="2"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <!--회원 가입-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="30dp">
+            <View
+                android:id="@+id/authview1"
+                android:layout_width="30dp"
+                android:layout_height="1dp"
+                android:background="#D3D3D3"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/areyounotauth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="회원이 아니신가요?"
+                android:gravity="center"
+                android:textColor="#808080"
+                android:layout_weight="1"
+                android:visibility="gone"/>
+            <View
+                android:id="@+id/authview2"
+                android:layout_width="30dp"
+                android:layout_height="1dp"
+                android:layout_centerInParent="true"
+                android:background="#D3D3D3"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:visibility="gone" />
+        </LinearLayout>
+
         <Button
-            android:id="@+id/loginBtn"
+            android:id="@+id/goSignInBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:backgroundTint="#8888FF"
-            android:text="로그인"
+            android:backgroundTint="@color/munzii_blue"
+            android:text="입력한 정보로 회원가입"
             android:textColor="@color/white"
             android:textStyle="bold"
             android:shadowColor="#000000"
             android:shadowDx="2"
             android:shadowDy="2"
             android:shadowRadius="2"
-            android:visibility="gone" />
+            android:visibility="gone"/>
+
     </LinearLayout>
 
 </ScrollView>

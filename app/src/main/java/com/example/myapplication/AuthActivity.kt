@@ -63,7 +63,7 @@ class AuthActivity : AppCompatActivity() {
                     }
 
                     //기기id, 닉네임 firebase에 들어가게
-                    if(binding.authEmailEditView.text.isNotEmpty() && binding.authNickNameEditView.text.isNotEmpty()){
+                    if(binding.authEmailEditView.text!!.isNotEmpty() && binding.authNickNameEditView.text.isNotEmpty()){
                         //firestore 저장
                         saveStore()
                     }else{
@@ -93,7 +93,7 @@ class AuthActivity : AppCompatActivity() {
                         Toast.makeText(baseContext, "로그인 실패...", Toast.LENGTH_LONG).show()
                         changeVisibility("logout")
                     }
-                    binding.authEmailEditView.text.clear()
+                    binding.authEmailEditView.text?.clear()
                     binding.authPasswordEditView.text.clear()
 
                 }
@@ -168,12 +168,19 @@ class AuthActivity : AppCompatActivity() {
                 logoutBtn.visibility = View.GONE
                 goSignInBtn.visibility = View.GONE
                 googleLoginBtn.visibility = View.GONE
+                naverLoginBtn.visibility= View.GONE
+                kakaoLoginBtn.visibility= View.GONE
                 authEmailEditView.visibility = View.VISIBLE
                 authPasswordEditView.visibility = View.VISIBLE
                 authNickNameEditView.visibility=View.VISIBLE
                 authDeviceIdEditView.visibility=View.VISIBLE
                 signBtn.visibility = View.VISIBLE
                 loginBtn.visibility = View.GONE
+                areyounotauth.visibility= View.GONE
+                authview1.visibility= View.GONE
+                authview3.visibility= View.GONE
+                authview4.visibility= View.GONE
+                authSNStext.visibility= View.GONE
             }
         }else if(mode.equals("login")){
             binding.run {
@@ -181,12 +188,19 @@ class AuthActivity : AppCompatActivity() {
                 logoutBtn.visibility= View.VISIBLE
                 goSignInBtn.visibility= View.GONE
                 googleLoginBtn.visibility= View.GONE
+                naverLoginBtn.visibility= View.GONE
+                kakaoLoginBtn.visibility= View.GONE
                 authEmailEditView.visibility= View.GONE
                 authPasswordEditView.visibility= View.GONE
                 authNickNameEditView.visibility=View.GONE
                 authDeviceIdEditView.visibility=View.GONE
                 signBtn.visibility= View.GONE
                 loginBtn.visibility= View.GONE
+                areyounotauth.visibility= View.GONE
+                authview1.visibility= View.GONE
+                authview3.visibility= View.GONE
+                authview4.visibility= View.GONE
+                authSNStext.visibility= View.GONE
             }
 
         }else if(mode.equals("logout")){
@@ -195,12 +209,20 @@ class AuthActivity : AppCompatActivity() {
                 logoutBtn.visibility = View.GONE
                 goSignInBtn.visibility = View.VISIBLE
                 googleLoginBtn.visibility = View.VISIBLE
+                naverLoginBtn.visibility= View.VISIBLE
+                kakaoLoginBtn.visibility= View.VISIBLE
                 authEmailEditView.visibility = View.VISIBLE
                 authPasswordEditView.visibility = View.VISIBLE
                 authNickNameEditView.visibility=View.GONE
                 authDeviceIdEditView.visibility=View.GONE
                 signBtn.visibility = View.GONE
                 loginBtn.visibility = View.VISIBLE
+                areyounotauth.visibility= View.VISIBLE
+                authview1.visibility= View.VISIBLE
+                authview2.visibility= View.VISIBLE
+                authview3.visibility= View.VISIBLE
+                authview4.visibility= View.VISIBLE
+                authSNStext.visibility= View.VISIBLE
             }
         }
     }
