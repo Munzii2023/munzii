@@ -1,46 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/photoImageView"
+    <LinearLayout
+        android:id="@+id/activity_content"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:scaleType="centerInside"
-        android:adjustViewBounds="true"
-        android:visibility="gone"
-        android:contentDescription="Photo Image" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-    <TextView
-        android:id="@+id/photoDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text=""
-        android:visibility="gone" />
-    <TextView
-        android:id="@+id/resultTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text=""
-        android:visibility="gone" />
+        <ImageView
+            android:id="@+id/photoImageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="centerInside"
+            android:adjustViewBounds="true"
+            android:contentDescription="Photo Image" />
 
-    <Button
-        android:id="@+id/takePhotoButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="사진 찍기" />
+        <View
+            android:id="@+id/photoviewline"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_centerInParent="true"
+            android:background="#D3D3D3"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:visibility="gone" />
 
-    <Button
-        android:id="@+id/galleryButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="갤러리로 가기" />
+        <TextView
+            android:id="@+id/resultTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text=""
+            android:textSize="20dp"
+            android:gravity="center"
+            android:visibility="gone" />
 
-</LinearLayout>
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:rowCount="1"
+            android:columnCount="2"
+            android:layout_gravity="center"
+            android:layout_margin="10dp">
+
+            <!-- 좋으면 이미지 good으로 나쁘면 bad으로 동적 변경 -->
+            <ImageView
+                android:id="@+id/resimageview"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:src="@drawable/marker_good"
+                android:layout_gravity="center"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/restext"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="오늘은 미세먼지 수치가 좋아요!&#x0A;야외 활동을 해보시는 건 어떨까요?"
+                android:visibility="gone" />
+
+        </GridLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_centerInParent="true"
+            android:background="#D3D3D3"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp" />
+
+        <GridLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:rowCount="1"
+            android:columnCount="2"
+            android:layout_gravity="center"
+            android:layout_margin="10dp">
+
+
+
+            <Button
+                android:id="@+id/takePhotoButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/munzii_blue"
+                android:text="카메라로 찍기"
+                app:icon="@drawable/baseline_camera_alt_24"/>
+
+            <Button
+                android:id="@+id/galleryButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:backgroundTint="@color/munzii_blue"
+                app:icon="@drawable/baseline_photo_24"
+                android:text="갤러리에서 선택" />
+
+        </GridLayout>
+
+
+    </LinearLayout>
+</ScrollView>

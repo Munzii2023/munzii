@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.example.myapplication.databinding.ActivityPhotoBinding
 import org.tensorflow.lite.Interpreter
 import java.io.File
 import java.io.FileInputStream
@@ -29,7 +30,9 @@ import java.nio.channels.FileChannel
 
 class PhotoActivity : AppCompatActivity() {
     private var photoImageView: ImageView? = null
-    private var photoDescription: TextView? = null
+    private var photoviewline: View? = null
+    private var resimageview: ImageView? = null
+    private var restext: TextView? = null
     private lateinit var tflite: Interpreter
     private lateinit var imageCaptureUri: Uri
 
@@ -38,7 +41,10 @@ class PhotoActivity : AppCompatActivity() {
         setContentView(R.layout.activity_photo)
 
         photoImageView = findViewById(R.id.photoImageView)
-        photoDescription = findViewById(R.id.photoDescription)
+        photoviewline = findViewById(R.id.photoviewline)
+        resimageview = findViewById(R.id.resimageview)
+        restext = findViewById(R.id.restext)
+
         tflite = Interpreter(loadModelFile())
 
         val takePhotoButton = findViewById<Button>(R.id.takePhotoButton)
@@ -134,13 +140,14 @@ class PhotoActivity : AppCompatActivity() {
             val imageBitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImageUri)
             photoImageView?.setImageBitmap(imageBitmap)
             photoImageView?.visibility = View.VISIBLE
-            photoDescription?.text = "갤러리에서 사진을 선택했습니다."
-            photoDescription?.visibility = View.VISIBLE
 
             val classificationResult = classifyImage(imageBitmap)
             val resultTextView = findViewById<TextView>(R.id.resultTextView)
             resultTextView.text = "결과: $classificationResult"
             resultTextView.visibility = View.VISIBLE
+            photoviewline!!.visibility = View.VISIBLE
+            resimageview!!.visibility = View.VISIBLE
+            restext!!.visibility = View.VISIBLE
         }
         else if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             val imageBitmap = if (data?.hasExtra("data") == true) {
@@ -153,13 +160,14 @@ class PhotoActivity : AppCompatActivity() {
 
             photoImageView?.setImageBitmap(imageBitmap)
             photoImageView?.visibility = View.VISIBLE
-            photoDescription?.text = "찍은 사진을 선택했습니다."
-            photoDescription?.visibility = View.VISIBLE
 
             val classificationResult = classifyImage(imageBitmap)
             val resultTextView = findViewById<TextView>(R.id.resultTextView)
             resultTextView.text = "결과: $classificationResult"
             resultTextView.visibility = View.VISIBLE
+            photoviewline!!.visibility = View.VISIBLE
+            resimageview!!.visibility = View.VISIBLE
+            restext!!.visibility = View.VISIBLE
         }
 
     }
