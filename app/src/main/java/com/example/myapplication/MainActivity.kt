@@ -31,6 +31,7 @@ import com.google.android.material.navigation.NavigationView
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import kotlinx.coroutines.*
@@ -403,7 +404,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-
+    //측정소 마커 띄우기
     private fun addMarkers() {
         // 다중 마커
         val call: Call<MyAModel> = MyApplication.retroInterface3.getRetrofit3( // 통신 부분
@@ -420,16 +421,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             override fun onResponse(call: Call<MyAModel>, response: Response<MyAModel>) {
                 if (response.isSuccessful) {
                     val responseBody = response.body()
-                    if (responseBody != null) { //화면에 보이는 마커만 불러오도록 변경해야됨=>js예제만 있어서 어려움..
+                    if (responseBody != null) {
                         coroutineScope.launch {
                             for (i in responseBody.response.body.items.indices) {
                                 val stationName = responseBody.response.body.items[i].stationName
                                 val sidoName = responseBody.response.body.items[i].sidoName
                                 val pm10 = responseBody.response.body.items[i].pm10Value
+                                val pm25 = responseBody.response.body.items[i].pm25Value
                                 mMarkerList[i] = Marker()
                                 val coord =
                                     allOfStationAsync(stationName.toString(), sidoName.toString())
-                                //!!!!!!!!!!!!!!렉심하면 여기 주석 처리하세요!!!!!!!!!!!!!!!!!
                                 if (coord != null) {
                                     if (responseBody.response.body.items[i].pm10Value != null) {
                                         mMarkerList[i]?.width = 100
@@ -458,15 +459,21 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     } else {
                                         ///null 이면 마커 안찍음
                                     }
-                                }// 주석영역끝
-                                /* 마커에 클릭리스너 주기!!
-                            val finalI = i
-                            mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
-                                override fun onClick(overlay: Overlay): Boolean {
-                                    Toast.makeText(application, "마커$finalI 클릭", Toast.LENGTH_SHORT).show()
-                                    return false
                                 }
-                            })*/
+                                //마커에 InfoActivity 클릭리스너
+                                val finalI = i
+                                mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
+                                override fun onClick(overlay: Overlay): Boolean {
+                                    val intent = Intent(this@MainActivity, InfoActivity::class.java)
+                                    intent.putExtra("pm10value", pm10)
+                                    intent.putExtra("pm25value", pm25)
+                                    intent.putExtra("stationvalue", stationName)
+                                    intent.putExtra("addressvalue", getAddress(mMarkerList[i]?.position!!.latitude, mMarkerList[i]?.position!!.longitude))
+
+                                    startActivity(intent)
+                                    return true
+                                }
+                            })
 
                             }
                         }

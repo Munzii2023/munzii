@@ -211,8 +211,8 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
             val longitude = coord.longitude
 
             //api 통신을 통해 pmvalue, 택배차량에 부착한 기기정보를 얻어오기
-            val pm10value = "13"
-            val pm25value = "21"
+            val pm10value = "11"
+            val pm25value = "10"
             val stationvalue = "rasberry_2"
 
             // 클릭한 위치의 주소 정보(경/위도 => 한글 주소)
