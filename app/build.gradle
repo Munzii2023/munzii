@@ -94,4 +94,6 @@ dependencies {
     implementation 'org.tensorflow:tensorflow-lite:2.7.0'
 
     implementation 'de.hdodenhof:circleimageview:3.1.0' //원형 버튼 라이브러리
+    implementation 'com.google.android.material:material:1.4.0'  // AndroidX 라이브러리 사용
+
 }

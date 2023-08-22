@@ -67,15 +67,70 @@
                     android:text="-> 택배 차량 지도" />
                     -->
 
-                <ImageButton
-                    android:id="@+id/btnDeliveryVehicle"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_margin="10dp"
-                    android:textStyle="bold"
-                    app:elevation="10dp"
-                    android:background="@color/white"
-                    android:src="@drawable/baseline_directions_car_24" />
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:id="@+id/btnDeliveryVehicle"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_margin="10dp"
+                        android:textStyle="bold"
+                        app:elevation="10dp"
+                        android:background="@color/white"
+                        android:contentDescription="택배 차량 지도 버튼"
+                        android:src="@drawable/baseline_directions_car_24" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fab_sub1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@+id/fab_sub2"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginBottom="15dp"
+                        android:layout_marginRight="20dp"
+                        android:backgroundTint="#ffffff"
+                        android:src="@drawable/baseline_camera_alt_24"
+                        app:borderWidth="0dp"
+                        app:fabSize="normal" />
+
+                    <!-- fab_sub2 버튼 수정 -->
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fab_sub2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_above="@+id/ic_main"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginBottom="15dp"
+                        android:layout_marginRight="20dp"
+                        app:backgroundTint="#ffffff"
+                        android:src="@drawable/baseline_photo_24"
+                        android:contentDescription="서브 버튼 2"
+                        app:borderWidth="0dp"
+                        app:fabSize="normal" />
+
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/ic_main"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:layout_margin="10dp"
+                        android:textStyle="bold"
+                        app:elevation="10dp"
+                        android:background="@color/white"
+                        android:src="@drawable/baseline_camera_alt_24"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginBottom="30dp"
+                        android:layout_marginRight="20dp"
+                        app:fabSize="normal"
+                        android:contentDescription="메인 버튼"
+                        android:onClick="onMainFabClick"/>
+
+
+                </RelativeLayout>
+
 
             </com.naver.maps.map.MapView>
 

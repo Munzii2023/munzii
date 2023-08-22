@@ -4,9 +4,9 @@ import MYModel
 import MyAModel
 import MyBModel
 import MySModel
-import PinItem
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
@@ -15,16 +15,18 @@ import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
-import android.widget.ImageView
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
-import com.example.myapplication.databinding.ActivityInfoBinding
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.databinding.NavigationHeaderBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
@@ -39,7 +41,8 @@ import retrofit2.Response
 import java.io.IOException
 import java.util.*
 import kotlin.properties.Delegates
-import kotlinx.coroutines.Dispatchers
+import android.view.View
+import com.example.myapplication.PhotoActivity
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -71,6 +74,15 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     // 코루틴 생성
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
 
+    //floatingbutton
+    private lateinit var mContext: Context
+    private lateinit var fabMain: FloatingActionButton
+    private lateinit var fabSub1: FloatingActionButton
+    private lateinit var fabSub2: FloatingActionButton
+    private lateinit var fabOpen: Animation
+    private lateinit var fabClose: Animation
+    private var isFabOpen = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityMainBinding.inflate(layoutInflater)
@@ -82,6 +94,35 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         binding.navBtn.setOnClickListener {
             binding.drawer.openDrawer(GravityCompat.START)
         }
+
+        mContext = applicationContext
+        fabOpen = AnimationUtils.loadAnimation(mContext, R.anim.fab_open)
+        fabClose = AnimationUtils.loadAnimation(mContext, R.anim.fab_close)
+
+        fabMain = findViewById(R.id.ic_main)
+        fabSub1 = findViewById(R.id.fab_sub1)
+        fabSub2 = findViewById(R.id.fab_sub2)
+
+        fabSub1.visibility = View.GONE
+        fabSub2.visibility = View.GONE
+
+        binding.icMain.setOnClickListener { v: View ->
+            when (v.id) {
+                R.id.ic_main -> toggleFab()
+                R.id.fab_sub1 -> {
+                    toggleFab()
+                }
+                R.id.fab_sub2 -> {
+                    toggleFab()
+                }
+            }
+        }
+
+        binding.fabSub1.setOnClickListener{
+            val intent = Intent(this, PhotoActivity::class.java)
+            startActivity(intent)
+        }
+
 
         binding.btnDeliveryVehicle.setOnClickListener {
             // SecondActivity로 이동하는 인텐트 시작
@@ -132,6 +173,30 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
     }
+
+
+    private fun toggleFab() {
+        if (isFabOpen) {
+            fabMain.setImageResource(R.drawable.baseline_camera_alt_24)
+            fabSub1.visibility = View.GONE  // 수정된 부분
+            fabSub2.visibility = View.GONE
+            fabSub1.startAnimation(fabClose)
+            fabSub2.startAnimation(fabClose)
+            fabSub1.isClickable = false
+            fabSub2.isClickable = false
+            isFabOpen = false
+        } else {
+            fabMain.setImageResource(R.drawable.baseline_close_24)
+            fabSub1.visibility = View.VISIBLE  // 수정된 부분
+            fabSub2.visibility = View.VISIBLE
+            fabSub1.startAnimation(fabOpen)
+            fabSub2.startAnimation(fabOpen)
+            fabSub1.isClickable = true
+            fabSub2.isClickable = true
+            isFabOpen = true
+        }
+    }
+
 
 
     //위도경도 좌표계 => tm좌표 변환 함수
