@@ -13,17 +13,20 @@
 
         <!-- 알림 On/Off 토글 스위치 -->
         <Switch
+            android:layout_marginTop="10dp"
             android:id="@+id/notificationSwitch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="15dp"
             android:text="알림 설정" />
+
         <LinearLayout
             android:id="@+id/notificationSettingsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp"
-            >
+            android:padding="16dp">
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -35,6 +38,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="위치를 입력하세요" />
+
+
 
             <TextView
                 android:layout_width="wrap_content"
@@ -81,12 +86,22 @@
                     android:text="매우 나쁨" />
             </LinearLayout>
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_centerInParent="true"
+                android:background="#D3D3D3"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1" />
+
             <Button
                 android:id="@+id/saveButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"
+                android:backgroundTint="@color/munzii_blue"
                 android:text="저장"
                 android:onClick="saveNotificationSettings" />
         </LinearLayout>
