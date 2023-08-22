@@ -81,6 +81,18 @@ class PhotoActivity : AppCompatActivity() {
             )
             startActivityForResult(pickPhotoIntent, REQUEST_IMAGE_PICK)
         }
+
+        if (intent.getBooleanExtra("fromCamera", false)) {
+            // fromCamera 값이 true일 경우 takePhotoButton을 자동으로 클릭
+            takePhotoButton.performClick()
+            // 다음에 takePhotoButton이 클릭되어도 이벤트를 처리하지 않도록 리스너 제거
+            takePhotoButton.setOnClickListener(null)
+        } else if (intent.getBooleanExtra("fromGallery", false)) {
+            // fromGallery 값이 true일 경우 galleryButton을 자동으로 클릭
+            galleryButton.performClick()
+            // 다음에 galleryButton이 클릭되어도 이벤트를 처리하지 않도록 리스너 제거
+            galleryButton.setOnClickListener(null)
+        }
     }
 
 

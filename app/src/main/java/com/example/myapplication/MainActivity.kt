@@ -121,6 +121,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
         binding.fabSub1.setOnClickListener{
             val intent = Intent(this, PhotoActivity::class.java)
+            intent.putExtra("fromCamera", true)
+            startActivity(intent)
+        }
+
+        binding.fabSub2.setOnClickListener{
+            val intent = Intent(this, PhotoActivity::class.java)
+            intent.putExtra("fromGallery", true)
             startActivity(intent)
         }
 
