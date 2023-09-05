@@ -126,6 +126,28 @@ data class BMunziiItem (
     val stationName: String? = null
 )
 
+data class DeliveryItem(val response: DResponse)
+data class DResponse (
+    val body: DBody,
+    val header: DHeader
+)
+data class DHeader (
+    val Content_Type: String,
+    val Access_Control_Allow_Origin: String
+)
+data class DBody (
+    val items: List<DeliveryItems>,
+)
+data class DeliveryItems (
+    val pm10value : Int,
+    val pm25value : Int,
+    val location : String ?= null,
+    val date_time : String ?= null,
+    val data_number : Int,
+    val equipment: String? = null
+)
+
+
 data class PinItem (
     val dmX : Double,
     val dmY : Double,

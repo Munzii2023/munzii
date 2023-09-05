@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import DeliveryItem
 import MYModel
 import MyAModel
 import MyBModel
@@ -61,3 +62,8 @@ interface Retrointerface4 { // 측정소 공공데이터 - 측정소 이름
         ): Call<MyBModel>
 }
 
+interface Deliveryinterface {
+    //https://dffg4e1d3b.execute-api.ap-northeast-2.amazonaws.com/
+    @GET("munzii-api/delivery")
+    fun getRetrofit5(): Call<DeliveryItem>
+}

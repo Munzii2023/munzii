@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import DeliveryItem
 import MYModel
 import MyAModel
 import MyBModel
@@ -44,6 +45,10 @@ import java.util.*
 import kotlin.properties.Delegates
 import android.view.View
 import com.example.myapplication.PhotoActivity
+import retrofit2.Callback
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.lang.reflect.Array.get
 
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener,
@@ -285,6 +290,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         })
     }
+
 
     /*
         private fun allOfStation(stationName: String, sidoName: String): LatLng? = runBlocking {// 측정소 위치값 return 받을 때 응답속도가 느려서 자꾸 null이 반환되는 문제가 생겨서 동기화 함수 추가 작성함

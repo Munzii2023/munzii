@@ -96,4 +96,7 @@ dependencies {
     implementation 'de.hdodenhof:circleimageview:3.1.0' //원형 버튼 라이브러리
     implementation 'com.google.android.material:material:1.4.0'  // AndroidX 라이브러리 사용
 
+    // Lombok
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
 }

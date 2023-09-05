@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import DeliveryItem
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -24,6 +25,11 @@ import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 import java.util.*
 import kotlin.properties.Delegates
@@ -95,87 +101,38 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         })
 
-
-
+        apiTest()
 
     }
 
+    private fun apiTest() { //미세먼지 API 불러오기
+        // Retrofit 초기화
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://dffg4e1d3b.execute-api.ap-northeast-2.amazonaws.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
 
-    /*
-    private fun fetchFineDust(sidoName: String, searchCondition: String) {
-    val retrofit = Retrofit.Builder()
-        .baseUrl(DustAPI.BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    val dustApi = retrofit.create(DustAPI::class.java)
-    dustApi.getFineDustbySido(sidoName, searchCondition).enqueue(object : Callback<FineDustResult> {
-        override fun onResponse(call: Call<FineDustResult>, response: Response<FineDustResult>) {
-            // 200은 성공을 의미합니다.
-            if (response.code() == 200) {
-                mResult = response.body()
-                setDustOnView()
+        // ApiService 인터페이스 구현체 생성
+        val apiService = retrofit.create(Deliveryinterface::class.java)
+
+        // API 호출
+        val call = apiService.getRetrofit5()
+        call.enqueue(object : Callback<DeliveryItem> {
+            override fun onResponse(call: Call<DeliveryItem>, response: Response<DeliveryItem>) {
+                if (response.isSuccessful) {
+                    val data = response.body() // JSON 데이터를 YourDataModel로 매핑
+                    Log.d("delivery", "${response.body()}")
+                    // 데이터 사용
+                } else {
+                    // 오류 처리
+                }
             }
-        }
 
-    override fun onFailure(call: Call<FineDustResult>, t: Throwable) {
-
-       }
+            override fun onFailure(call: Call<DeliveryItem>, t: Throwable) {
+                // 네트워크 오류 처리
+            }
         })
     }
-
-    //API에서 가져온 가게 좌표마다 marker 띄움
-    private fun updateMapMarkers(result: StoreSaleResult) {
-        resetMarkerList()
-        if (result.stores != null && result.stores.size > 0) {
-            for (mask in result.stores) {
-                val marker = Marker()
-                marker.tag = mask
-                marker.position = LatLng(mask.lat, mask.lng)
-
-                when (mask.remain_stat.toLowerCase()) {
-                    "plenty" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_green)
-                    "some" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_yellow)
-                    "few" -> marker.icon = OverlayImage.fromResource(R.drawable.marker_red)
-                    else -> marker.icon = OverlayImage.fromResource(R.drawable.marker_gray)
-                }
-                marker.anchor = PointF(0.5f, 1.0f)
-                marker.map = mnaverMap
-                marker.setOnClickListener(this)
-                mMarkerList.add(marker)
-            }
-        }
-    }
-    */
-
-
-    /*  override fun onOptionsItemSelected(item: MenuItem): Boolean {
-          if(item.itemId === R.id.menu_auth){
-              val intent = Intent(this, AuthActivity::class.java)
-              if(_binding.headerName!!.text!!.equals("인증")){
-                  intent.putExtra("data", "logout")
-              }
-              else{ //이메일, 구글계정
-                  intent.putExtra("data", "login")
-              }
-              startActivity(intent)
-          }
-          return super.onOptionsItemSelected(item)
-      } */
-
-    /*private fun setMark(marker: Marker, lat: Double, lng: Double, resourceID: Int) { //마커 띄우기
-        // 원근감 표시
-        marker.isIconPerspectiveEnabled = true
-        // 아이콘 지정
-        marker.icon = OverlayImage.fromResource(resourceID)
-        // 마커의 투명도
-        marker.alpha = 0.8f
-        // 마커 위치
-        marker.position = LatLng(lat, lng)
-        // 마커 우선순위
-        marker.zIndex = 10
-        // 마커 표시
-        marker.map = naverMap
-    }*/
 
     override fun onMapReady(naverMap: NaverMap) { //네이버 지도의 이벤트를 처리하는 콜백함수
 
