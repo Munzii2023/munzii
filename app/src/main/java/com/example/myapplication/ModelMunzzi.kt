@@ -1,3 +1,4 @@
+import com.google.gson.annotations.SerializedName
 import com.google.type.LatLng
 import ted.gun0912.clustering.TedClustering
 import ted.gun0912.clustering.clustering.TedClusterItem
@@ -145,6 +146,27 @@ data class DeliveryItems (
     val date_time : String ?= null,
     val data_number : Int,
     val equipment: String? = null
+)
+
+data class SensorData(
+    val statusCode: Int,
+    val headers: Headers,
+    val body: List<SensorEntry>,
+    val isBase64Encoded: Boolean
+)
+
+data class Headers(
+    val content_Type: String,
+    val access_Control_Allow_Origin: String
+)
+
+data class SensorEntry(
+    val data_number: Int,
+    val equipment: String,
+    val pm10value: Int,
+    val pm25value: Int,
+    val location: String,
+    val date_time: String
 )
 
 

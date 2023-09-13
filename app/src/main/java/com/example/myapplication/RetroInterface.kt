@@ -5,6 +5,7 @@ import MYModel
 import MyAModel
 import MyBModel
 import MySModel
+import SensorData
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -65,5 +66,5 @@ interface Retrointerface4 { // 측정소 공공데이터 - 측정소 이름
 interface Deliveryinterface {
     //https://dffg4e1d3b.execute-api.ap-northeast-2.amazonaws.com/
     @GET("munzii-api/delivery")
-    fun getRetrofit5(): Call<DeliveryItem>
+    fun getRetrofit5(): Call<SensorData>
 }

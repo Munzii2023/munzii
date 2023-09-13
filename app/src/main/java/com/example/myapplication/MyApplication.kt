@@ -67,13 +67,6 @@ class MyApplication : MultiDexApplication() {
             retroInterface4 = retrofit4.create(Retrointerface4::class.java)
         }
 
-        // amazon rest api
-        val retrofit5 : Retrofit
-            get() = Retrofit.Builder()
-                .baseUrl("https://dffg4e1d3b.execute-api.ap-northeast-2.amazonaws.com/munzii-api/delivery")
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
         fun checkAuth(): Boolean {
             val currentUser = auth.currentUser
             return currentUser?.let {

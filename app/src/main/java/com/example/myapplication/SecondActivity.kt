@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import DeliveryItem
+import SensorData
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -63,6 +64,8 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
             //startActivity(intent)
             finish()
         }
+        apiTest()
+
 
         // 네이버 지도
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -100,9 +103,6 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
                 return true
             }
         })
-
-        apiTest()
-
     }
 
     private fun apiTest() { //미세먼지 API 불러오기
@@ -117,19 +117,20 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // API 호출
         val call = apiService.getRetrofit5()
-        call.enqueue(object : Callback<DeliveryItem> {
-            override fun onResponse(call: Call<DeliveryItem>, response: Response<DeliveryItem>) {
+        call.enqueue(object : Callback<SensorData> {
+            override fun onResponse(call: Call<SensorData>, response: Response<SensorData>) {
                 if (response.isSuccessful) {
                     val data = response.body() // JSON 데이터를 YourDataModel로 매핑
-                    Log.d("delivery", "${response.body()}")
+                    Log.d("deliverytest", "${call.request()}")
+                    Log.d("deliverytest", "${response.body()}")
                     // 데이터 사용
                 } else {
                     // 오류 처리
                 }
             }
 
-            override fun onFailure(call: Call<DeliveryItem>, t: Throwable) {
-                // 네트워크 오류 처리
+            override fun onFailure(call: Call<SensorData>, t: Throwable) {
+                Log.d("mobileApp", "${t.toString()}")
             }
         })
     }
