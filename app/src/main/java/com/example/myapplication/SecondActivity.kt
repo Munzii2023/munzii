@@ -24,8 +24,12 @@ import com.google.android.material.navigation.NavigationView
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -47,6 +51,9 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mLocationSource: FusedLocationSource
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var marker : Marker
+
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+    private val mMarkerList = arrayOfNulls<Marker>(700) //공공데이터에서 불러오는 미세먼지 마커들
 
     //현재 위치 저장
     private var lat by Delegates.notNull<Double>()
@@ -120,10 +127,74 @@ class SecondActivity : AppCompatActivity(), OnMapReadyCallback {
         call.enqueue(object : Callback<SensorData> {
             override fun onResponse(call: Call<SensorData>, response: Response<SensorData>) {
                 if (response.isSuccessful) {
-                    val data = response.body() // JSON 데이터를 YourDataModel로 매핑
+                    val responseBody = response.body()
                     Log.d("deliverytest", "${call.request()}")
                     Log.d("deliverytest", "${response.body()}")
-                    // 데이터 사용
+                    val pm10value= response.body()?.body?.get(0)?.pm10value
+                    val pm25value= response.body()?.body?.get(0)?.pm25value
+
+                    if (responseBody != null){
+                        coroutineScope.launch {
+                            for (i in responseBody.body.indices) {
+                                val pm10value = responseBody.body[i].pm10value
+                                val pm25value = responseBody.body[i].pm25value
+
+                                mMarkerList[i] = Marker()
+                                if (responseBody.body[i].pm10value != null) {
+                                    mMarkerList[i]?.width = 100
+                                    mMarkerList[i]?.height = 100
+                                    if (pm10value.toString()!! <= 15.toString()) { //0~15 미세먼지 굿
+                                        val lat = responseBody.body[i].latitude
+                                        val lon = responseBody.body[i].longtitude
+                                        val latlng = LatLng(lat.toDouble(), lon.toDouble())
+                                        mMarkerList[i]?.position = latlng
+                                        mMarkerList[i]?.icon =
+                                            OverlayImage.fromResource(R.drawable.marker_good)
+                                        mMarkerList[i]?.map = naverMap
+                                    } else if (pm10value.toString()!! <= 35.toString() && pm10value.toString()!! > 15.toString()) { //15~35
+                                        val lat = responseBody.body[i].latitude
+                                        val lon = responseBody.body[i].longtitude
+                                        val latlng = LatLng(lat.toDouble(), lon.toDouble())
+                                        mMarkerList[i]?.position = latlng
+                                        mMarkerList[i]?.icon =
+                                            OverlayImage.fromResource(R.drawable.marker_soso)
+                                        mMarkerList[i]?.map = naverMap
+                                    } else if (pm10value.toString()!! <= 75.toString() && pm10value.toString()!! > 35.toString()) {// 35~75
+                                        val lat = responseBody.body[i].latitude
+                                        val lon = responseBody.body[i].longtitude
+                                        val latlng = LatLng(lat.toDouble(), lon.toDouble())
+                                        mMarkerList[i]?.position = latlng
+                                        mMarkerList[i]?.icon =
+                                            OverlayImage.fromResource(R.drawable.marker_bad)
+                                        mMarkerList[i]?.map = naverMap
+                                    } else { //75~
+                                        val lat = responseBody.body[i].latitude
+                                        val lon = responseBody.body[i].longtitude
+                                        val latlng = LatLng(lat.toDouble(), lon.toDouble())
+                                        mMarkerList[i]?.position = latlng
+                                        mMarkerList[i]?.icon =
+                                            OverlayImage.fromResource(R.drawable.marker_terri)
+                                        mMarkerList[i]?.map = naverMap
+                                    }
+                                }
+                                //마커에 InfoActivity 클릭리스너
+                                val finalI = i
+                                mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
+                                    override fun onClick(overlay: Overlay): Boolean {
+                                        val intent = Intent(this@SecondActivity, InfoActivity::class.java)
+                                        intent.putExtra("pm10value", pm10value)
+                                        intent.putExtra("pm25value", pm25value)
+                                        intent.putExtra("addressvalue", getAddress(mMarkerList[i]?.position!!.latitude, mMarkerList[i]?.position!!.longitude))
+
+                                        startActivity(intent)
+                                        return true
+                                    }
+                                })
+
+                            }
+                        }
+                    }
+
                 } else {
                     // 오류 처리
                 }

@@ -165,7 +165,8 @@ data class SensorEntry(
     val equipment: String,
     val pm10value: Int,
     val pm25value: Int,
-    val location: String,
+    val latitude: String,
+    val longtitude: String,
     val date_time: String
 )
 
