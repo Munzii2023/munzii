@@ -2,12 +2,14 @@ package com.example.myapplication
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.Display
 import android.view.Gravity
 import android.view.MotionEvent
@@ -33,8 +35,12 @@ class InfoActivity : AppCompatActivity() {
         //info의 각 정보 변수와 main에서의 실질적인 값 연결
         val addressvalue = intent.getStringExtra("addressvalue")
         val pm10value = intent.getStringExtra("pm10value")
+        if (pm10value != null) {
+            Log.d("infopm10", pm10value)
+        }
         val pm25value = intent.getStringExtra("pm25value")
         val stationvalue = intent.getStringExtra("stationvalue")
+        val pm10Int = pm10value?.toIntOrNull()
 
         //activity_info.xml과 연결
         binding.addressValue.text = addressvalue
@@ -46,10 +52,10 @@ class InfoActivity : AppCompatActivity() {
 
         // 이미지 리소스 ID를 가져오기 위해 pm10value에 따라 적절한 이미지 선택
         val imageResId = when {
-            pm10value != null -> when {
-                pm10value <= "15" -> R.drawable.marker_good
-                pm10value <= "35" -> R.drawable.marker_soso
-                pm10value <= "75" -> R.drawable.marker_bad
+            pm10Int != null -> when {
+                pm10Int <= 15 -> R.drawable.marker_good
+                pm10Int <= 35 -> R.drawable.marker_soso
+                pm10Int <= 75 -> R.drawable.marker_bad
                 else -> R.drawable.marker_terri
             }
             else -> R.drawable.smile // pm10value가 null일 경우 기본 이미지 사용

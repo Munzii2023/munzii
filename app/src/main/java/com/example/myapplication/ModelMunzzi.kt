@@ -33,10 +33,10 @@ data class ModelStation(
     var so2Value: String? = null,
     var pm10Grade1h: String? = null,
     var o3Grade: String? = null,
-    var pm10Value: String? = null,
+    var pm10Value: String ?= null,
     var pm25Flag: String? = null,
     var khaiGrade: String? = null,
-    var pm25Value: String? = null,
+    var pm25Value: String ?= null,
     var no2Flag: String? = null,
     var mangName: String? = null,
     var stationName: String? = null,
@@ -163,8 +163,8 @@ data class Headers(
 data class SensorEntry(
     val data_number: Int,
     val equipment: String,
-    val pm10value: Int,
-    val pm25value: Int,
+    val pm10value: String ?= null,
+    val pm25value: String ?= null,
     val latitude: String,
     val longtitude: String,
     val date_time: String
