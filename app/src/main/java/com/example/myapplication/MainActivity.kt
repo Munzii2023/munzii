@@ -474,7 +474,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     }
                                 }
                                 //마커에 InfoActivity 클릭리스너
-                                val finalI = i
                                 mMarkerList[i]?.setOnClickListener(object : Overlay.OnClickListener {
                                 override fun onClick(overlay: Overlay): Boolean {
                                     val intent = Intent(this@MainActivity, InfoActivity::class.java)
